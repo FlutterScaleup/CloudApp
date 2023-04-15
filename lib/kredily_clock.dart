@@ -1,13 +1,25 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_gsheet/hello_page.dart';
 import 'package:flutter_gsheet/my_controller.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import 'main.dart';
 class KredilyClock{
+  static String topicScaleupString="scaleup";
+  static String taskTitleString="Task List";
+  static String taskBodyString="Please add your tasklist in slack group- Team cloud tech";
+
+  static String hourTitleString="Hours log";
+  static String hourBodyString="Please update your daily hours log";
+
+
   var client = http.Client();
   MyController myController=Get.put(MyController());
   getKredily() async {
@@ -37,7 +49,7 @@ class KredilyClock{
       'Content-Type': 'application/json'
     };
     var data=jsonEncode({
-      "email":sharedPreference.get("email"),
+      "email":sharedPreference.get("email").toString().toLowerCase(),
       "password":sharedPreference.get("pass")
     });
     print(data);
@@ -89,8 +101,13 @@ class KredilyClock{
       print("SSSSSSSSS ${response.body}");
       try{
         var json=jsonDecode(response.body);
+        if(myController.isLoginPage==true){
+          myController.loginLoading.value=false;
+          FirebaseMessaging.instance.subscribeToTopic(KredilyClock.topicScaleupString);
+          FirebaseMessaging.instance.subscribeToTopic(myController.textEditingControllerEmail.text.toLowerCase().replaceAll('@', '.'));
+          Get.off(()=> HelloPage());
+        }
 
-        myController.streamController.sink.add(true);
         print("inside");
 
         if(json['attendance_log'].isNotEmpty){
@@ -101,6 +118,7 @@ class KredilyClock{
             startTimer(locall.microsecondsSinceEpoch);
           }
         }
+        
         if(myController.shouldGoForward.value==true){
           print("xxxxxxxxxxxxxxx");
           if(json['attendance_log'].isEmpty){
@@ -187,9 +205,154 @@ class KredilyClock{
       "X-CSRFToken":'$csrfToken',
       'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
     };
-    var response=await http.get(Uri.parse('https://scaleupallyio.kredily.com/leave-request/leave_accrual_user/'),headers: header);
+    try{
+      var response=await http.get(Uri.parse('https://scaleupallyio.kredily.com/leave-request/leave_accrual_user/'),headers: header);
+      print(response.statusCode);
+      var json=jsonDecode(response.body);
+      return json['leave_bal_json_data'];
+    }catch(e){
+      print("ERRRRRRRRROR $e");
+      var error="Something went wrong!";
+      if(e.toString().contains("Failed host lookup")){
+        error="You are not connected to internet";
+      }
+      Fluttertoast.showToast(msg: "Something went wrong!");
+    }
+
+  }
+  getLeaveLogs(csrfToken,sessionId,years) async {
+    var header={
+      "X-CSRFToken":'$csrfToken',
+      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
+    };
+    print(years);
+    var response=await http.get(Uri.parse('https://scaleupallyio.kredily.com/leave-request/user_leave_log_datatable?year=$years'),headers: header);
     // print(response.body);
     var json=jsonDecode(response.body);
-    return json['leave_bal_json_data'];
+    return json['json_data'];
+  }
+
+  cancelLeave(csrfToken,sessionId,leaveRequestUu) async {
+    var header={
+      "X-CSRFToken":'$csrfToken',
+      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}',
+      'Content-Type': 'application/json'
+    };
+    var data=jsonEncode({
+      "leave_request_uu":leaveRequestUu,
+    });
+    var request=await http.Request("GET",Uri.parse('https://scaleupallyio.kredily.com/leave-request/cancelLeave/'));
+    request.body=data;
+    request.headers.addAll(header);
+    http.StreamedResponse response=await request.send();
+
+    myController.cancelLeaveLoading.value=false;
+
+    if (response.statusCode == 200) {
+      // print(await response.stream.bytesToString());
+      String body=await response.stream.bytesToString();
+      var json=jsonDecode(body);
+      if(json['status']=="success"){
+        Fluttertoast.showToast(msg: json['message']);
+        return "success";
+      }else{
+        Fluttertoast.showToast(msg: json['message']);
+      }
+    }
+    else {
+      print(response.reasonPhrase);
+      Fluttertoast.showToast(msg: response.reasonPhrase.toString());
+    }
+
+  }
+
+  applyLeave(csrfToken,sessionId,leaveType,startDate,startDaySession,endDate,endDaySession,reasonForLeave) async {
+    var header={
+      "X-CSRFToken":'$csrfToken',
+      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}',
+      'Content-Type': 'application/json'
+    };
+    var data=jsonEncode({
+      "leave_type":leaveType,
+      "start_date":startDate,
+      "start_day_session":startDaySession,
+      "end_date":endDate,
+      "end_day_session":endDaySession,
+      "reason_for_leave":reasonForLeave,
+    });
+    try{
+      var response=await http.post(Uri.parse('https://scaleupallyio.kredily.com/leave-request/add-new/'),headers: header,body: data);
+      print(response.body);
+      myController.applyLeaveLoading.value=false;
+      var json=jsonDecode(response.body);
+      if(json['status']=="error"){
+        Fluttertoast.showToast(msg: json['error_msg']);
+      }
+      if(json['status']=="success"){
+        Fluttertoast.showToast(msg: 'Leave Applied : status ${json['leave_obj']['status']}');
+        return "success";
+      }
+    }catch(e){
+      print(e);
+      myController.applyLeaveLoading.value=false;
+      Fluttertoast.showToast(msg: "Something went wrong");
+    }
+    // var json=jsonDecode(response.body);
+  }
+
+  sendNotification2(){
+    Fluttertoast.showToast(msg: "Send");
+    Map<String, dynamic> message = {
+      'to': '/topics/topic_name', // Replace with the topic or device token you want to send the message to
+      'notification': {
+        'title': 'Title of the notification',
+        'body': 'Body of the notification'
+      }
+    };
+    var message2=jsonEncode({
+      'to': '/topics/scaleup', // Replace with the topic or device token you want to send the message to
+      'notification': {
+        'title': 'Title of the notification',
+        'body': 'Body of the notification'
+      },
+      'data': {
+        'title': 'Title of the notification',
+        'body': 'Body of the notification'
+      }
+    });
+
+    FirebaseMessaging.instance.sendMessage(to: '/topics/scaleup',
+      data: {'trer':'qwer'},
+      messageType: 'RemoteMessageDataType.data',
+    );
+  }
+
+
+  sendNotification(title,body,topic) async {
+    //scaleup
+    //replace @ with . in mail id
+    var headers={
+      "Authorization":"key=AAAA2l6H44s:APA91bHuB6WroEyzaWOMOfP13hn4CCe5UefvDJ4tFjj0xh8SdBrQeIl0csEqHxJ4mFCoGhoyT7rBUb9i4FOKNXYGy2t9CPUDhfMbiesQxUaUsBYgt5sTD_tbek3HgPhqk_ZX34kmXDNS",
+      "Content-Type":"application/json"
+    };
+    var message=jsonEncode({
+      'to': '/topics/${topic}', // Replace with the topic or device token you want to send the message to
+      'notification': {
+        'title': '$title',
+        'body': '$body'
+      },
+      'data': {
+        'title': '$title',
+        'body': '$body'
+      }
+    });
+
+    var response=await http.post(Uri.parse("https://fcm.googleapis.com/fcm/send"),headers: headers,body: message);
+    print(response.statusCode);
+    print(response.body);
+    Fluttertoast.showToast(msg: "Send successfully");
+    if(response.statusCode==200){
+      return "success";
+    }
   }
 }

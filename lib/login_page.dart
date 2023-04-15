@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_gsheet/hello_page.dart';
 import 'package:flutter_gsheet/kredily_clock.dart';
 import 'package:flutter_gsheet/main.dart';
 import 'package:flutter_gsheet/my_controller.dart';
@@ -17,37 +14,31 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController textEditingControllerEmail=TextEditingController();
   TextEditingController textEditingControllerPass=TextEditingController();
-  late StreamSubscription streamSubscription;
   var animateWidth;
   MyController myController=Get.put(MyController());
+  bool visible=false;
+
   @override
   void initState() {
     super.initState();
-
-    streamSubscription=myController.streamController.stream.listen((value) {
-      print('Value from controller: $value');
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>HelloPage()));
-    });
+    myController.isLoginPage.value=true;
   }
-
 
   @override
   void dispose() {
-    streamSubscription.cancel();
+    myController.textEditingControllerEmail.text="";
+    myController.isLoginPage.value=false;
     super.dispose();
   }
 
   onSubmit(){
-
-    if(textEditingControllerEmail.text.isEmpty){
-
-      if(!GetUtils.isEmail(textEditingControllerEmail.text)){
-        Fluttertoast.showToast(msg: "Email is invalid");
-        return;
-      }
+    if(myController.textEditingControllerEmail.text.isEmpty){
       Fluttertoast.showToast(msg: "Email can't be empty");
+      return;
+    }
+    if(!GetUtils.isEmail(myController.textEditingControllerEmail.text)){
+      Fluttertoast.showToast(msg: "Invalid Email");
       return;
     }
     if(textEditingControllerPass.text.isEmpty){
@@ -63,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     myController.loginLoading.value=true;
 
-    sharedPreference.setString("email", textEditingControllerEmail.text);
+    sharedPreference.setString("email", myController.textEditingControllerEmail.text.toLowerCase());
     sharedPreference.setString("pass", textEditingControllerPass.text);
     KredilyClock().getKredily();
   }
@@ -80,11 +71,18 @@ class _LoginPageState extends State<LoginPage> {
               width<600?SizedBox():Expanded(flex: 2,child: SvgPicture.asset('assets/signin.svg',height: Get.size.height-100,)),
               Expanded(flex: width>600 && width<800?2:1,
                 child: Column(mainAxisSize: MainAxisSize.min,children: [
-                  Image.asset("assets/scaleup.png",scale: 1.2),
+                  Material(elevation: 1,borderRadius: BorderRadius.circular(150),child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Image.asset("assets/scaleup.png",scale: 1.2),
+                  )),
                   SizedBox(height: 50,),
-                  Container(padding: EdgeInsets.only(left: 16),decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.grey)),child: TextField(controller: textEditingControllerEmail,keyboardType: TextInputType.emailAddress,decoration: InputDecoration(hintText: "Enter email",border: InputBorder.none),)),
+                  Container(padding: EdgeInsets.only(left: 16),decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.grey)),child: TextField(controller: myController.textEditingControllerEmail,keyboardType: TextInputType.emailAddress,decoration: InputDecoration(hintText: "Enter email",border: InputBorder.none),)),
                   SizedBox(height: 16,),
-                  Container(padding: EdgeInsets.only(left: 16),decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.grey)),child: TextField(controller: textEditingControllerPass,obscureText: true,decoration: InputDecoration(hintText: "Enter Password",border: InputBorder.none),)),
+                  Container(padding: EdgeInsets.only(left: 16),decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.grey)),child: TextField(onSubmitted: (value){onSubmit();},controller: textEditingControllerPass,obscureText: visible?false:true,decoration: InputDecoration(hintText: "Enter Password",border: InputBorder.none,suffixIcon: InkWell(onTap: (){
+                    visible=!visible;
+                    setState(() {
+                    });
+                  },child: Icon(visible?Icons.visibility_off:Icons.visibility))),)),
                   SizedBox(height: 50,),
 
                   Obx(() => myController.loginLoading.value==true?SizedBox():Row(children: [
@@ -105,7 +103,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],))
                 ],),
               ),
-
               width<600?SizedBox():SizedBox(width: 24,)
             ],
           ),

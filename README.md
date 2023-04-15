@@ -17,3 +17,4 @@ samples, guidance on mobile development, and a full API reference.
 
 
 https://www.youtube.com/watch?v=ZSSERiYLv3c
+flutter version 3.7.6

@@ -1,15 +1,18 @@
+import 'dart:isolate';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:drop_down_list/model/selected_list_item.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gsheet/hello_page.dart';
 import 'package:flutter_gsheet/onBoard/on_board_screen.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'login_page.dart';
 
 const credential=r''' 
   {
@@ -35,8 +38,25 @@ Future<void> main() async {
   print(sharedPreference.get("verified"));
   final gsheets = GSheets(credential);
   spreadSheet =await gsheets.spreadsheet(spreadSheetId);
+  await Firebase.initializeApp();
+  await FirebaseMessaging.instance.requestPermission(sound: true,badge: true,alert: true,criticalAlert: true,announcement: true);
+
+   FirebaseMessaging.onMessage.listen((event) async {
+    print("event ${event.data}");
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+    flutterLocalNotificationsPlugin.show(1, event.data['title'], event.data['body'], NotificationDetails(android: AndroidNotificationDetails("1","sad")));
+  });
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
+  await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+  flutterLocalNotificationsPlugin.show(1, message.data['title'], message.data['body'], NotificationDetails(android: AndroidNotificationDetails("1","sad")),payload: "");
+
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -49,9 +69,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true
       ),
+      // home: HelloPage(),
       // home: const MyHomePage(title: 'Hours Log'),
       // home: OnboardScreen(),
-      home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?LoginPage():const HelloPage(),
+      // home: LoginPage(),
+      home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?OnboardScreen():const HelloPage(),
     );
   }
 }
@@ -80,18 +102,16 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLoading=true;
 
 
-
-
   @override
   void initState() {
     super.initState();
     var justNow=DateTime.now();
     now = DateFormat('dd-MMMM-yyyy').format(justNow);
 
-    getInitalData();
+    getInitialData();
   }
 
-  getInitalData() async {
+  getInitialData() async {
     // sharedPrefrence = await SharedPreferences.getInstance();
     var member=sharedPreference.get("member");
     print("Memberrrr $member");
@@ -167,101 +187,118 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title,style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: isLoading==true?Center(child: CircularProgressIndicator(color: Colors.red,)):SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(children: [
-            Row(children: [
-              Expanded(child: InkWell(onTap: (){
-                showDate();
-              },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Text('$now',style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),)))
-            ],),
-            SizedBox(height: 16,),
+      body: RefreshIndicator(
+        onRefresh: () async{
+          isLoading=true;
+          selectedMemberList=[];
+          selectedProjectList=[];
+          selectedTaskList=[];
+          selectedHourList=[];
+          textEditingController.text='';
+          selectedProjectValue="Project Name";
+          selectedTaskValue="Category of Task";
+          selectedHourValue="Time (in hrs)";
+          setState(() {
+          });
+          getInitialData();
+        },
 
-            Row(children: [
-              Expanded(child: InkWell(onTap: (){
-                showMember();
-              },
-                child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(selectedMemberValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                    ),
-                    Icon(Icons.arrow_drop_down,color: Colors.black,)
-                  ],
-                ),),
-              ))
-            ],),
-            SizedBox(height: 16,),
-            Row(children: [
-              Expanded(child: InkWell(onTap: (){
-                showProject();
-              },
-                child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(selectedProjectValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                    ),
-                    Icon(Icons.arrow_drop_down,color: Colors.black,)
-                  ],
-                ),),
-              ))
-            ],),
-            SizedBox(height: 16,),
-            Row(children: [
-              Expanded(child: InkWell(onTap: (){
-                showTask();
-              },
-                child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(selectedTaskValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                    ),
-                    Icon(Icons.arrow_drop_down,color: Colors.black,)
-                  ],
-                ),),
-              ))
-            ],),
+        child: isLoading==true?Center(child: CircularProgressIndicator(color: Colors.red,)):SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(children: [
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  showDate();
+                },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Text('$now',style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),)))
+              ],),
+              SizedBox(height: 16,),
 
-            SizedBox(height: 16,),
-            Row(children: [
-              Expanded(child: InkWell(onTap: (){
-                showHours();
-              },
-                child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(selectedHourValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                    ),
-                    Icon(Icons.arrow_drop_down,color: Colors.black,)
-                  ],
-                ),),
-              ))
-            ],),
-            SizedBox(height: 16,),
-            Container(padding: EdgeInsets.only(left: 16,right: 16),decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10) ),child: TextField(controller: textEditingController,minLines: 4,maxLines: 10,decoration: InputDecoration(border: InputBorder.none,hintText: "Work description",hintStyle: TextStyle()),style: TextStyle())),
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  showMember();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(selectedMemberValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
+                      ),
+                      Icon(Icons.arrow_drop_down,color: Colors.black,)
+                    ],
+                  ),),
+                ))
+              ],),
+              SizedBox(height: 16,),
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  showProject();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(selectedProjectValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
+                      ),
+                      Icon(Icons.arrow_drop_down,color: Colors.black,)
+                    ],
+                  ),),
+                ))
+              ],),
+              SizedBox(height: 16,),
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  showTask();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(selectedTaskValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
+                      ),
+                      Icon(Icons.arrow_drop_down,color: Colors.black,)
+                    ],
+                  ),),
+                ))
+              ],),
 
-            SizedBox(height: 16,),
-            Row(children: [
-              Expanded(child: InkWell(onTap: (){
-                onSubmit();
-              },
-                child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text("SUBMIT",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
-                    ),
-                  ],
-                ),),
-              ))
-            ],),
+              SizedBox(height: 16,),
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  showHours();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(selectedHourValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
+                      ),
+                      Icon(Icons.arrow_drop_down,color: Colors.black,)
+                    ],
+                  ),),
+                ))
+              ],),
+              SizedBox(height: 16,),
+              Container(padding: EdgeInsets.only(left: 16,right: 16),decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10) ),child: TextField(controller: textEditingController,minLines: 4,maxLines: 10,decoration: InputDecoration(border: InputBorder.none,hintText: "Work description",hintStyle: TextStyle()),style: TextStyle())),
 
-          ],),
+              SizedBox(height: 16,),
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  onSubmit();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("SUBMIT",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                      ),
+                    ],
+                  ),),
+                ))
+              ],),
+
+            ],),
+          ),
         ),
       ),
     );

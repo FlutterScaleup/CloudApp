@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MyController extends GetxController{
@@ -11,11 +11,11 @@ class MyController extends GetxController{
   // RxString? animatedWidth="".obs;
   final animatedWidth = Rxn<double>();
   RxBool loginLoading=false.obs;
-  StreamController<bool>  streamController=StreamController();
+  RxBool applyLeaveLoading=false.obs;
+  RxBool cancelLeaveLoading=false.obs;
+  RxBool isLoginPage=false.obs;
+  RxString isAdmin=''.obs;
+  RxString isLoggedIn="notLoggedIn".obs;
+  TextEditingController textEditingControllerEmail=TextEditingController();
 
-  @override
-  void dispose() {
-    streamController.close();
-    super.dispose();
-  }
 }
