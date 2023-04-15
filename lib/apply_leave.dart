@@ -151,7 +151,7 @@ class _ApplyLeaveState extends State<ApplyLeave> {
             ],)),
             Obx(() => myController.applyLeaveLoading.value==false?SizedBox():Row(mainAxisAlignment: MainAxisAlignment.center,children: [
               Container(padding: EdgeInsets.all(8),decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(30)),width: 50,height: 50,child: CircularProgressIndicator(color: Colors.white,),)
-            ],))          ],),
+            ],))],),
         ),
       ),
     );

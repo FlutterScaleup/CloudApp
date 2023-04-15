@@ -1,19 +1,16 @@
 import 'dart:io';
 import 'dart:isolate';
-
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gsheet/main.dart';
 import 'package:flutter_gsheet/my_controller.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
-
 import 'kredily_clock.dart';
 
 class AdminLoginPage extends StatefulWidget {
@@ -148,6 +145,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       }
       alrmmm(0,12,11,00); // id,duration, on hours, on minute
       alrmmm(1,24,19,30);
+      Fluttertoast.showToast(msg: "Alarm set successfully");
+
     }else{
       Fluttertoast.showToast(msg: "Alarm has already been set");
     }

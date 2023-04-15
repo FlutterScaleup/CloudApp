@@ -100,7 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController textEditingController=TextEditingController();
   // late SharedPreferences sharedPrefrence;
   bool isLoading=true;
-
+  List list=[];
+  bool progress=false;
 
   @override
   void initState() {
@@ -124,6 +125,18 @@ class _MyHomePageState extends State<MyHomePage> {
     var itemsProject=(await sheet.values.columnByKey("Project Name"))!;
     var itemsTask=(await sheet.values.columnByKey("Category of Task"))!;
     var itemsHours=(await sheet.values.columnByKey("Hours"))!;
+
+    if(selectedMemberValue=="Member Name"){
+      var emailList=(await sheet.values.columnByKey("Email"))!;
+      if(sharedPreference.get("email")!=null && sharedPreference.get("email").toString().isNotEmpty){
+        if(emailList.contains(sharedPreference.get("email"))){
+          String email=sharedPreference.get("email").toString();
+          var index=emailList.indexOf(email);
+          selectedMemberValue=itemsMember[index];
+          sharedPreference.setString("member", selectedMemberValue);
+        }
+      }
+    }
     for(String x in itemsMember){
       selectedMemberList.add(SelectedListItem(name: x));
     }
@@ -147,17 +160,26 @@ class _MyHomePageState extends State<MyHomePage> {
     // await sheet.values.insertColumn(7, ['qwer']);
     var allRow=await sheet!.values.allRows();
     // print(allRow.length);
-    await sheet.values.insertRow(allRow.length+1, [now,selectedMemberValue,selectedProjectValue,selectedTaskValue,textEditingController.text,selectedHourValue]);
-
-    textEditingController.text='';
-    selectedProjectValue="Project Name";
-    selectedTaskValue="Category of Task";
-    selectedHourValue="Time (in hrs)";
+    int length=allRow.length;
+    for(int i=0;i<list.length;i++){
+      length=length+1;
+      await sheet.values.insertRow(length, [list[i]['date'],list[i]['member'],list[i]['project'],list[i]['task'],list[i]['desc'],list[i]['hour']]);
+    }
+    list=[];
+    progress=false;
     setState(() {
     });
+
+    // textEditingController.text='';
+    // selectedProjectValue="Project Name";
+    // selectedTaskValue="Category of Task";
+    // selectedHourValue="Time (in hrs)";
+    // setState(() {
+    // });
     Fluttertoast.showToast(msg: "Hours Log Updated Successfully");
   }
-  onSubmit(){
+
+  insertToList(){
     if(selectedMemberValue=="Member Name"){
       Fluttertoast.showToast(msg: "Select Member Name");
       return;
@@ -178,7 +200,15 @@ class _MyHomePageState extends State<MyHomePage> {
       Fluttertoast.showToast(msg: "Write Work description");
       return;
     }
-    sheetWork();
+    // sheetWork();
+    list.add({"date":now,"member":selectedMemberValue,"project":selectedProjectValue,"task":selectedTaskValue,"desc":textEditingController.text,"hour":selectedHourValue});
+    textEditingController.text='';
+    selectedProjectValue="Project Name";
+    selectedTaskValue="Category of Task";
+    selectedHourValue="Time (in hrs)";
+    setState(() {
+    });
+    Fluttertoast.showToast(msg: "Added to list");
   }
 
   @override
@@ -216,7 +246,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
               Row(children: [
                 Expanded(child: InkWell(onTap: (){
-                  showMember();
+                  if(selectedMemberValue=="Member Name"){
+                    showMember();
+                  }
                 },
                   child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
                     children: [
@@ -224,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.all(16.0),
                         child: Text(selectedMemberValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
                       ),
-                      Icon(Icons.arrow_drop_down,color: Colors.black,)
+                      selectedMemberValue=="Member Name"?Icon(Icons.arrow_drop_down,color: Colors.black,):SizedBox()
                     ],
                   ),),
                 ))
@@ -284,7 +316,62 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: 16,),
               Row(children: [
                 Expanded(child: InkWell(onTap: (){
-                  onSubmit();
+                  insertToList();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("ADD",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                      ),
+                    ],
+                  ),),
+                ))
+              ],),
+
+              SizedBox(height: 16,),
+              ListView.separated(itemCount: list.length,shrinkWrap: true,primary: false,itemBuilder: (itemBuilder,index){
+                return ListTile(
+                    title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(list[index]['project']),
+
+                        InkWell(onTap: (){
+                          list.removeAt(index);
+                          setState(() {
+                          });
+                        },child: Icon(Icons.delete,color: Colors.red,)),
+                      ],
+                    ),
+                  subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(list[index]['task']+" - "+list[index]['hour']+"h"),
+                          Text(DateFormat("dd-MM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
+                        ],
+                      ),
+                      Text(list[index]['desc'],style: TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+
+                );
+              }, separatorBuilder: (BuildContext context, int index) {
+                return Divider();
+              },),
+
+              SizedBox(height: 16,),
+              list.isEmpty?SizedBox():
+              progress==true?
+              Row(mainAxisAlignment: MainAxisAlignment.center,children: [
+                Container(padding: EdgeInsets.all(8),decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(30)),width: 50,height: 50,child: CircularProgressIndicator(color: Colors.white,),)
+              ],):
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
+                  progress=true;
+                  setState(() {
+                  });
+                  sheetWork();
                 },
                   child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
                     children: [
@@ -296,7 +383,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),),
                 ))
               ],),
-
             ],),
           ),
         ),
