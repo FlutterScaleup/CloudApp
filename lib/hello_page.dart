@@ -127,6 +127,7 @@ class _HelloPageState extends State<HelloPage> {
           sharedPreference.setString("email",'');
           sharedPreference.setString("pass",'');
           myController.isAdmin.value='';
+          sharedPreference.setString("isAdmin",'');
           myController.isLoggedIn.value="notLoggedIn";
           FirebaseAuth.instance.signOut();
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (builder)=>LoginPage()),(route) => false,);

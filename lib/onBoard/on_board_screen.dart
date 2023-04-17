@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gsheet/hello_page.dart';
 import 'package:flutter_gsheet/login_page.dart';
 import 'package:flutter_gsheet/onBoard/constant.dart';
 import 'package:flutter_gsheet/onBoard/AllinOnboardModel.dart';
@@ -17,17 +16,17 @@ class _OnboardScreenState extends State<OnboardScreen> {
 
   List<AllinOnboardModel> allinonboardlist = [
     AllinOnboardModel(
-        "assets/designf.jpg",
-        "There are many variations of passages of Lorem Ipsum available. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary",
-        "Prepard by exparts"),
+        "assets/goal.png",
+        "Developing disruptive solutions, require collaborative efforts from great tech talents across the globe. A right team behind a project increases the chances of its success by 70%. Our vision is to help new-age companies scale up their technological capabilities by providing on-demand access to world-class talent.",
+        "We Put Together Your Dream-Team"),
     AllinOnboardModel(
-        "assets/designs.jpg",
-        "There are many variations of passages of Lorem Ipsum available. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary",
-        "Delivery to your home"),
+        "assets/value.png",
+        "We use our Values every day, whether we’re discussing ideas for new projects or deciding on the best approach to solving a problem. It is just one of the things that makes ScaleupAlly peculiar.",
+        "Our Values"),
     AllinOnboardModel(
-        "assets/designt.jpg",
-        "There are many variations of passages of Lorem Ipsum available. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary",
-        "Enjoy with everyone"),
+        "assets/productivity.png",
+        "Access to the top talents at the right time with little to no-management needed, can potentially double your overall productivity",
+        "2X Productivity"),
   ];
 
   @override
@@ -37,97 +36,96 @@ class _OnboardScreenState extends State<OnboardScreen> {
         centerTitle: true,
         title: Text(
           "Scaleupally",
-          style: TextStyle(color: primarygreen),
+          style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
         ),
-        backgroundColor: lightgreenshede,
+        backgroundColor: Colors.blueAccent,
       ),
       backgroundColor: Colors.white,
-      body: Stack(
+      body: Column(
         children: [
-          PageView.builder(controller: pageController,
-              onPageChanged: (value) {
-                setState(() {
-                  currentIndex = value;
-                });
-              },
-              itemCount: allinonboardlist.length,
-              itemBuilder: (context, index) {
-                return PageBuilderWidget(
-                    title: allinonboardlist[index].titlestr,
-                    description: allinonboardlist[index].description,
-                    imgurl: allinonboardlist[index].imgStr);
-              }),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.2,
-            left: MediaQuery.of(context).size.width * 0.44,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                allinonboardlist.length,
-                    (index) => buildDot(index: index),
-              ),
+          Expanded(flex: 7,
+            child: PageView.builder(controller: pageController,
+                onPageChanged: (value) {
+                  setState(() {
+                    currentIndex = value;
+                  });
+                },
+                itemCount: allinonboardlist.length,
+                itemBuilder: (context, index) {
+                  return PageBuilderWidget(
+                      title: allinonboardlist[index].titlestr,
+                      description: allinonboardlist[index].description,
+                      imgurl: allinonboardlist[index].imgStr);
+                }),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              allinonboardlist.length,
+                  (index) => buildDot(index: index),
             ),
           ),
+          SizedBox(height: 16,),
+
           currentIndex < allinonboardlist.length - 1
-              ? Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.05,
-            width: MediaQuery.of(context).size.width,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Previous",
-                    style: TextStyle(fontSize: 18, color: primarygreen),
+              ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Previous",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blueAccent,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(20.0),
+                              bottomRight: Radius.circular(20.0))),
+                    ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    primary: lightgreenshede1,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(20.0),
-                            bottomRight: Radius.circular(20.0))),
+                  ElevatedButton(
+                    onPressed: () {
+                      // pageController.animateTo(1, duration: Duration.zero, curve: Curves.easeIn);
+                      currentIndex++;
+                      pageController.jumpToPage(currentIndex);
+                    },
+                    child: Text(
+                      "Next",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blueAccent,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              bottomLeft: Radius.circular(20.0))),
+                    ),
+                  )
+                ],
+              )
+              :
+          Row(mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>LoginPage()));
+                    },
+                    child: Text(
+                      "Get Started",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0)),
+                    ),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // pageController.animateTo(1, duration: Duration.zero, curve: Curves.easeIn);
-                    currentIndex++;
-                    pageController.jumpToPage(currentIndex);
-                  },
-                  child: Text(
-                    "Next",
-                    style: TextStyle(fontSize: 18, color: primarygreen),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: lightgreenshede1,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20.0),
-                            bottomLeft: Radius.circular(20.0))),
-                  ),
-                )
-              ],
-            ),
-          )
-              : Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.05,
-            left: MediaQuery.of(context).size.width * 0.33,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>LoginPage()));
-              },
-              child: Text(
-                "Get Started",
-                style: TextStyle(fontSize: 18, color: primarygreen),
-              ),
-              style: ElevatedButton.styleFrom(
-                primary: lightgreenshede1,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0)),
-              ),
-            ),
+            ],
           ),
+
+          SizedBox(height: 16,)
         ],
       ),
     );
@@ -140,7 +138,7 @@ class _OnboardScreenState extends State<OnboardScreen> {
       height: 6,
       width: currentIndex == index ? 20 : 6,
       decoration: BoxDecoration(
-        color: currentIndex == index ? primarygreen : Color(0xFFD8D8D8),
+        color: currentIndex == index ? Colors.blueAccent : Color(0xFFD8D8D8),
         borderRadius: BorderRadius.circular(3),
       ),
     );
@@ -167,7 +165,7 @@ class PageBuilderWidget extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 20),
-            child: Image.asset(imgurl),
+            child:Image.asset(imgurl),
           ),
           const SizedBox(
             height: 20,
@@ -175,7 +173,7 @@ class PageBuilderWidget extends StatelessWidget {
           //Tite Text
           Text(title,
               style: TextStyle(
-                  color: primarygreen,
+                  color: Colors.black,
                   fontSize: 24,
                   fontWeight: FontWeight.w700)),
           const SizedBox(
@@ -185,7 +183,7 @@ class PageBuilderWidget extends StatelessWidget {
           Text(description,
               textAlign: TextAlign.justify,
               style: TextStyle(
-                color: primarygreen,
+                color: Colors.black,
                 fontSize: 14,
               ))
         ],
