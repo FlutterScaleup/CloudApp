@@ -14,8 +14,8 @@ class MyController extends GetxController{
   RxBool applyLeaveLoading=false.obs;
   RxBool cancelLeaveLoading=false.obs;
   RxBool isLoginPage=false.obs;
-  RxString isAdmin=''.obs;
-  RxString isLoggedIn="notLoggedIn".obs;
+  // RxString isAdmin=''.obs;
+  // RxString isLoggedIn="notLoggedIn".obs;
   TextEditingController textEditingControllerEmail=TextEditingController();
 
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gsheet/alarm_class.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
@@ -143,48 +144,69 @@ class _AdminPageState extends State<AdminPage> {
         });
         fetchData();
       },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
-          Row(
-            children: [
-              Checkbox(value: value1, onChanged: (onChanged){
-                value1=!value1;
-                value2=false;
-                setState(() {
-                });
-              }),
-              Text("TaskList message")
-            ],
-          ),
-          Row(
-            children: [
-              Checkbox(value: value2, onChanged: (onChanged){
-                value2=!value2;
-                value1=false;
-                setState(() {
-                });
-              }),
-              Text("Hour logs message")
-            ],
-          ),
-          Row(children: [
-            Expanded(child: InkWell(onTap: (){
-              sendMess();
-            },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Text("Send Message",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center),)))
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
+
+            sharedPreference.get("alarm")!=null?SizedBox():Text("Alarm will be set on 11AM for TaskList, 7:30PM for Hour Logs and 11PM for remaining member hour logs",style: TextStyle(fontWeight: FontWeight.bold)),
+            sharedPreference.get("alarm")!=null?SizedBox():SizedBox(height: 8,),
+            sharedPreference.get("alarm")!=null?SizedBox():Row(children: [
+              Expanded(child: InkWell(onTap: (){
+                AlarmClass().setAlarm();
+              },
+                child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text("Use alarm manager",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                    ),
+                  ],
+                ),),
+              ))
+            ],),
+
+            sharedPreference.get("alarm")!=null?SizedBox():SizedBox(height: 24,),
+            Row(
+              children: [
+                Checkbox(value: value1, onChanged: (onChanged){
+                  value1=!value1;
+                  value2=false;
+                  setState(() {
+                  });
+                }),
+                Text("TaskList message")
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(value: value2, onChanged: (onChanged){
+                  value2=!value2;
+                  value1=false;
+                  setState(() {
+                  });
+                }),
+                Text("Hour logs message")
+              ],
+            ),
+            Row(children: [
+              Expanded(child: InkWell(onTap: (){
+                sendMess();
+              },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Text("Send Message",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center),)))
+            ],),
+            SizedBox(height: 50,),
+            Text(memberList.isEmpty?'':'Remaining hour logs members',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22)),
+            SizedBox(height: 16,),
+            Text(memberList.isEmpty?'':memberList.join(", ").toString()),
+            SizedBox(height: 16,),
+            memberList.isEmpty?SizedBox():Row(children: [
+              Expanded(child: InkWell(onTap: (){
+                sendPersonalMsg();
+                // fetchData();
+              },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Text("Send Message to everyone",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center),)))
+            ],),
           ],),
-          SizedBox(height: 50,),
-          Text(memberList.isEmpty?'':'Remaining hour logs members',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22)),
-          SizedBox(height: 16,),
-          Text(memberList.isEmpty?'':memberList.join(", ").toString()),
-          SizedBox(height: 16,),
-          memberList.isEmpty?SizedBox():Row(children: [
-            Expanded(child: InkWell(onTap: (){
-              sendPersonalMsg();
-              // fetchData();
-            },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Text("Send Message to everyone",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center),)))
-          ],),
-        ],),
+        ),
       ),
     ),
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gsheet/login_page.dart';
-import 'package:flutter_gsheet/onBoard/constant.dart';
 import 'package:flutter_gsheet/onBoard/AllinOnboardModel.dart';
 
 class OnboardScreen extends StatefulWidget {
@@ -133,7 +132,7 @@ class _OnboardScreenState extends State<OnboardScreen> {
 
   AnimatedContainer buildDot({int? index}) {
     return AnimatedContainer(
-      duration: kAnimationDuration,
+      duration: Duration(milliseconds: 200),
       margin: EdgeInsets.only(right: 5),
       height: 6,
       width: currentIndex == index ? 20 : 6,

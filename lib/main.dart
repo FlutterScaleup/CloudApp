@@ -240,7 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Row(children: [
                 Expanded(child: InkWell(onTap: (){
                   showDate();
-                },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Text('$now',style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),)))
+                },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Text('$now',style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),)))
               ],),
               SizedBox(height: 16,),
 
@@ -250,7 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     showMember();
                   }
                 },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedMemberValue=="Member Name"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -266,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(child: InkWell(onTap: (){
                   showProject();
                 },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedProjectValue=="Project Name"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -282,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(child: InkWell(onTap: (){
                   showTask();
                 },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedTaskValue=="Category of Task"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -299,7 +299,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(child: InkWell(onTap: (){
                   showHours();
                 },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedHourValue=="Time (in hrs)"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -347,8 +347,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(list[index]['task']+" - "+list[index]['hour']+"h"),
-                          Text(DateFormat("dd-MM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
+                          Text(list[index]['task']+" - "+list[index]['hour']+"hrs"),
+                          Text(DateFormat("dd-MMMM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
                         ],
                       ),
                       Text(list[index]['desc'],style: TextStyle(fontWeight: FontWeight.w500)),

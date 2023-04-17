@@ -44,10 +44,10 @@ class _HelloPageState extends State<HelloPage> {
 
     FirebaseMessaging.instance.subscribeToTopic(KredilyClock.topicScaleupString);
 
-    var value=sharedPreference.get("isAdmin");
-    if(value!=null && value!=''){
-      myController.isAdmin.value="yes";
-    }
+    // var value=sharedPreference.get("isAdmin");
+    // if(value!=null && value!=''){
+    //   myController.isAdmin.value="yes";
+    // }
   }
   getInitialData() async {
     return;
@@ -98,11 +98,14 @@ class _HelloPageState extends State<HelloPage> {
       context: context,
       position: RelativeRect.fromLTRB(offset.dx, offset.dy+15,-15, 0),
       items: [
-        PopupMenuItem<String>(child: const Text('Admin'), value: 'Admin',onTap: (){
-          SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-            Future.delayed(Duration(seconds: 0),()=> Get.to(()=>AdminLoginPage()));
-          });
-        },),
+        // PopupMenuItem<String>(child: const Text('Admin'), value: 'Admin',onTap: (){
+        //   SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        //     Future.delayed(Duration(seconds: 0),()=> Get.to(()=>AdminLoginPage()));
+        //   });
+        // },),
+        PopupMenuItem<String>(child: const Text('Refresh'), value: 'Refresh',onTap: (){
+          getInitialData();
+        }),
         PopupMenuItem<String>(child: const Text('Logout'), value: 'Logout',onTap: (){
           // Navigator.of(context).pop();
           _showLogoutDialog();
@@ -126,9 +129,9 @@ class _HelloPageState extends State<HelloPage> {
           sharedPreference.setString("verified",'');
           sharedPreference.setString("email",'');
           sharedPreference.setString("pass",'');
-          myController.isAdmin.value='';
-          sharedPreference.setString("isAdmin",'');
-          myController.isLoggedIn.value="notLoggedIn";
+          // myController.isAdmin.value='';
+          // sharedPreference.setString("isAdmin",'');
+          // myController.isLoggedIn.value="notLoggedIn";
           FirebaseAuth.instance.signOut();
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (builder)=>LoginPage()),(route) => false,);
         },child: Container(padding: EdgeInsets.only(top: 8,bottom: 8,left: 16,right: 16),decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(10)),child: Text('Yes',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),))),
@@ -251,7 +254,7 @@ class _HelloPageState extends State<HelloPage> {
               ),
 
               SizedBox(height: 16,),
-              Obx(() => myController.isAdmin.value!=''?
+              sharedPreference.get("email").toString()=="sapna.jain@scaleupally.io"?
               Row(
                 children: [
                   Expanded(
@@ -277,7 +280,7 @@ class _HelloPageState extends State<HelloPage> {
                     ),
                   ),
                 ],
-              ):SizedBox()),
+              ):SizedBox()
             ],),
           ),
         ),
