@@ -74,6 +74,7 @@ class MyApp extends StatelessWidget {
       // home: OnboardScreen(),
       // home: LoginPage(),
       home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?OnboardScreen():const HelloPage(),
+      // home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?OnboardScreen():const HelloPage(),
     );
   }
 }
@@ -95,6 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String selectedProjectValue="Project Name";
   List<SelectedListItem> selectedTaskList=[];
   String selectedTaskValue="Category of Task";
+  List<SelectedListItem> selectedSubTaskList=[];
+  String selectedSubTaskValue="Sub Category of Task";
   List<SelectedListItem> selectedHourList=[];
   String selectedHourValue="Time (in hrs)";
   TextEditingController textEditingController=TextEditingController();
@@ -102,6 +105,12 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLoading=true;
   List list=[];
   bool progress=false;
+
+  var coreTasKIDList;
+  var helpTasKIDList;
+  var rnDTaskIDList;
+  var otherTaskIDList;
+  var leisureTaskIDList;
 
   @override
   void initState() {
@@ -125,6 +134,13 @@ class _MyHomePageState extends State<MyHomePage> {
     var itemsProject=(await sheet.values.columnByKey("Project Name"))!;
     var itemsTask=(await sheet.values.columnByKey("Category of Task"))!;
     var itemsHours=(await sheet.values.columnByKey("Hours"))!;
+
+
+    coreTasKIDList=(await sheet.values.columnByKey("Core Task ID"))!;
+    helpTasKIDList=(await sheet.values.columnByKey("Help Task ID"))!;
+    rnDTaskIDList=(await sheet.values.columnByKey("R&D Task ID"))!;
+    otherTaskIDList=(await sheet.values.columnByKey("Other Work-Related Task ID"))!;
+    leisureTaskIDList=(await sheet.values.columnByKey("Leisure Task ID"))!;
 
     if(selectedMemberValue=="Member Name"){
       var emailList=(await sheet.values.columnByKey("Email"))!;
@@ -163,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
     int length=allRow.length;
     for(int i=0;i<list.length;i++){
       length=length+1;
-      await sheet.values.insertRow(length, [list[i]['date'],list[i]['member'],list[i]['project'],list[i]['task'],list[i]['desc'],list[i]['hour']]);
+      await sheet.values.insertRow(length, [list[i]['date'],list[i]['member'],list[i]['project'],list[i]['task'],list[i]['subTask'],list[i]['desc'],list[i]['hour']]);
     }
     list=[];
     progress=false;
@@ -192,6 +208,10 @@ class _MyHomePageState extends State<MyHomePage> {
       Fluttertoast.showToast(msg: "Select Category of Task");
       return;
     }
+    if(selectedSubTaskValue=="Sub Category of Task"){
+      Fluttertoast.showToast(msg: "Select Sub Category of Task");
+      return;
+    }
     if(selectedHourValue=="Time (in hrs)"){
       Fluttertoast.showToast(msg: "Select Time (in hrs)");
       return;
@@ -201,10 +221,11 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     // sheetWork();
-    list.add({"date":now,"member":selectedMemberValue,"project":selectedProjectValue,"task":selectedTaskValue,"desc":textEditingController.text,"hour":selectedHourValue});
+    list.add({"date":now,"member":selectedMemberValue,"project":selectedProjectValue,"task":selectedTaskValue,"subTask":selectedSubTaskValue,"desc":textEditingController.text,"hour":selectedHourValue});
     textEditingController.text='';
     selectedProjectValue="Project Name";
     selectedTaskValue="Category of Task";
+    selectedSubTaskValue="Sub Category of Task";
     selectedHourValue="Time (in hrs)";
     setState(() {
     });
@@ -297,6 +318,27 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: 16,),
               Row(children: [
                 Expanded(child: InkWell(onTap: (){
+                  if(selectedSubTaskList.isEmpty){
+                    Fluttertoast.showToast(msg: "Select Category first");
+                    return;
+                  }
+                  showSubTask();
+                },
+                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedSubTaskValue=="Sub Category of Task"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(selectedSubTaskValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
+                      ),
+                      Icon(Icons.arrow_drop_down,color: Colors.black,)
+                    ],
+                  ),),
+                ))
+              ],),
+
+              SizedBox(height: 16,),
+              Row(children: [
+                Expanded(child: InkWell(onTap: (){
                   showHours();
                 },
                   child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedHourValue=="Time (in hrs)"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
@@ -332,26 +374,30 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: 16,),
               ListView.separated(itemCount: list.length,shrinkWrap: true,primary: false,itemBuilder: (itemBuilder,index){
                 return ListTile(
-                    title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(list[index]['project']),
-
-                        InkWell(onTap: (){
-                          list.removeAt(index);
-                          setState(() {
-                          });
-                        },child: Icon(Icons.delete,color: Colors.red,)),
-                      ],
-                    ),
+                  title: Text(list[index]['project']),
                   subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Row(
                         children: [
-                          Text(list[index]['task']+" - "+list[index]['hour']+"hrs"),
-                          Text(DateFormat("dd-MMMM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
+                          Text(list[index]['date']),
+                          SizedBox(width: 16,),
+                          Text(list[index]['hour']+"hrs"),
+
+                          // Text(DateFormat("dd-MMMM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
                         ],
                       ),
+                      Text(list[index]['task']),
+                      Text(list[index]['subTask']),
                       Text(list[index]['desc'],style: TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                  trailing: Column(mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(onTap: (){
+                        list.removeAt(index);
+                        setState(() {
+                        });
+                      },child: Icon(Icons.delete,color: Colors.red,)),
                     ],
                   ),
 
@@ -490,6 +536,67 @@ class _MyHomePageState extends State<MyHomePage> {
           }
           print(list);
           selectedTaskValue=list.first;
+          selectedSubTaskValue='Sub Category of Task';
+          selectedSubTaskList=[];
+          setState(() {
+          });
+
+          if(selectedTaskValue=="Core task"){
+            for(String x in coreTasKIDList){
+              selectedSubTaskList.add(SelectedListItem(name: x));
+            }
+          }else if(selectedTaskValue=="Help task"){
+            for(String x in helpTasKIDList){
+              selectedSubTaskList.add(SelectedListItem(name: x));
+            }
+          }else if(selectedTaskValue=="R&D task"){
+            for(String x in rnDTaskIDList){
+              selectedSubTaskList.add(SelectedListItem(name: x));
+            }
+          }else if(selectedTaskValue=="Other work-related tasks"){
+            for(String x in otherTaskIDList){
+              selectedSubTaskList.add(SelectedListItem(name: x));
+            }
+          }else if(selectedTaskValue=="Leisure tasks"){
+            for(String x in leisureTaskIDList){
+              selectedSubTaskList.add(SelectedListItem(name: x));
+            }
+          }
+
+          // showSnackBar(list.toString());
+        },
+        enableMultipleSelection: false,
+      ),
+    ).showModal(context);
+  }
+  showSubTask(){
+    DropDownState(
+      DropDown(
+        bottomSheetTitle: Text(
+          'Select Sub Category of Task',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.0,
+          ),
+        ),
+        submitButtonChild: const Text(
+          'Done',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        data: selectedSubTaskList,
+        // data: widget.cities ?? [],
+        selectedItems: (List<dynamic> selectedList) {
+          List<String> list = [];
+          for(var item in selectedList) {
+            if(item is SelectedListItem) {
+              list.add(item.name);
+            }
+          }
+          print(list);
+          selectedSubTaskValue=list.first;
           setState(() {
           });
           // showSnackBar(list.toString());

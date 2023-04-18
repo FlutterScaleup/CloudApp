@@ -1,23 +1,15 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_gsheet/admin_login.dart';
 import 'package:flutter_gsheet/admin_page.dart';
 import 'package:flutter_gsheet/kredily_clock.dart';
 import 'package:flutter_gsheet/leave_page.dart';
 import 'package:flutter_gsheet/login_page.dart';
 import 'package:flutter_gsheet/my_controller.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'main.dart';
+
 
 class HelloPage extends StatefulWidget {
   const HelloPage({Key? key}) : super(key: key);
@@ -27,13 +19,9 @@ class HelloPage extends StatefulWidget {
 }
 
 class _HelloPageState extends State<HelloPage> {
-  // late SharedPreferences sharedPreference;
-
   var csrfToken;
   var sessionId;
   MyController myController=Get.put(MyController());
-  // var animatedWidth;
-
 
   @override
   void initState() {
@@ -238,7 +226,7 @@ class _HelloPageState extends State<HelloPage> {
                             child: Align(alignment: Alignment.centerRight,child: SizedBox(height: 130,width: 130,child: Image.asset("assets/leave.png"),)),
                           ),
                           Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
-                            Text("Emotions log",style: TextStyle(color: Colors.blueAccent,fontSize: 24,fontWeight: FontWeight.bold),),
+                            Text("Leave logs",style: TextStyle(color: Colors.blueAccent,fontSize: 24,fontWeight: FontWeight.bold),),
                             SizedBox(height: 16,),
                             SizedBox(width: MediaQuery.of(context).size.width/2,child: Text("Find out if the person you are thinking about are doing the same right now",style: TextStyle(color: Colors.blueAccent[200]),)),
                             SizedBox(height: 16,),
