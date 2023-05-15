@@ -9,84 +9,87 @@ import 'package:intl/intl.dart';
 import 'kredily_clock.dart';
 import 'main.dart';
 
-class AlarmClass{
-
-  setAlarm(){
-    var alrm=sharedPreference.get("alarm");
-    if(alrm==null){
+class AlarmClass {
+  setAlarm() {
+    var alrm = sharedPreference.get("alarm");
+    if (alrm == null) {
       sharedPreference.setString("alarm", "true");
-      alrmmm(id,durationMin,hour,min) async {
+      alrmmm(id, duration, hour, min) async {
         await AndroidAlarmManager.initialize();
         if (Platform.isAndroid) {
           await AndroidAlarmManager.periodic(
-            Duration(minutes: durationMin),
+            Duration(hours: duration),
             id,
             printHello,
             wakeup: true,
-            startAt: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, hour, min),
+            startAt: DateTime(DateTime.now().year, DateTime.now().month,
+                DateTime.now().day, hour, min),
             rescheduleOnReboot: true,
           );
         }
       }
-      alrmmm(0,12,11,00); // id,duration, on hours, on minute
-      alrmmm(1,24,19,30);
-      Fluttertoast.showToast(msg: "Alarm set successfully");
 
-    }else{
+      alrmmm(0, 12, 11, 00); // id,duration, on hours, on minute
+      alrmmm(1, 24, 19, 30);
+      Fluttertoast.showToast(msg: "Alarm set successfully");
+    } else {
       Fluttertoast.showToast(msg: "Alarm has already been set");
     }
   }
-  Future<void> printHello() async {
-    final int isolateId = Isolate.current.hashCode;
+}
 
-    final now = DateTime.now();
-    final year = now.year;
-    final month = now.month;
+Future<void> printHello() async {
+  final int isolateId = Isolate.current.hashCode;
 
-    final firstDayOfMonth = DateTime(year, month, 1);
-    final firstSaturday = _getNextSaturday(firstDayOfMonth);
+  final now = DateTime.now();
+  final year = now.year;
+  final month = now.month;
 
-    final secondSaturday = _getNextSaturday(firstSaturday.add(Duration(days: 7)));
+  final firstDayOfMonth = DateTime(year, month, 1);
+  final firstSaturday = _getNextSaturday(firstDayOfMonth);
 
-    final fifthSaturday = _getNextSaturday(firstSaturday.add(Duration(days: 28)));
-    final fourthSaturday = fifthSaturday.subtract(Duration(days: 7));
+  final secondSaturday = _getNextSaturday(firstSaturday.add(Duration(days: 7)));
 
-    print('Second Saturday of the month: ${secondSaturday.toString()}');
-    print('Fourth Saturday of the month: ${fourthSaturday.toString()}');
-    print('fifthSaturday Saturday of the month: ${fifthSaturday.toString()}');
+  final fifthSaturday = _getNextSaturday(firstSaturday.add(Duration(days: 28)));
+  final fourthSaturday = fifthSaturday.subtract(Duration(days: 7));
 
-    String ss=DateFormat("yyyy-MM-dd").format(secondSaturday);
-    String fs=DateFormat("yyyy-MM-dd").format(fourthSaturday);
-    String fis=DateFormat("yyyy-MM-dd").format(fifthSaturday);
-    String nn=DateFormat("yyyy-MM-dd").format(now);
-    if(nn==ss || nn==fs || nn==fis){
-      return;
-    }
+  print('Second Saturday of the month: ${secondSaturday.toString()}');
+  print('Fourth Saturday of the month: ${fourthSaturday.toString()}');
+  print('fifthSaturday Saturday of the month: ${fifthSaturday.toString()}');
 
-    print("[$now] Hello, world! isolate=${isolateId} function='$printHello'");
-    // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
-    // await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
-
-    if(now.hour==11){
-      await KredilyClock().sendNotification(KredilyClock.taskTitleString,KredilyClock.taskBodyString,KredilyClock.topicScaleupString);
-      // flutterLocalNotificationsPlugin.show(12, 'Auto Task notification ', 'TaskList Notification Has send successfully', NotificationDetails(android: AndroidNotificationDetails("12","sad","das")),payload: "");
-
-    }else if(now.hour==23){
-      fetchData();
-      // flutterLocalNotificationsPlugin.show(12, 'Remaining members hour logs', 'Notification send to remaining member who has not fill their hour logs', NotificationDetails(android: AndroidNotificationDetails("12","sad","das")),payload: "");
-
-    }else if(now.hour==19){
-      await KredilyClock().sendNotification(KredilyClock.hourTitleString,KredilyClock.hourBodyString,KredilyClock.topicScaleupString);
-      // flutterLocalNotificationsPlugin.show(12, 'Auto Hour logs notification ', 'Hour logs Notification Has send successfully', NotificationDetails(android: AndroidNotificationDetails("12","sad","das")),payload: "");
-    }
+  String ss = DateFormat("yyyy-MM-dd").format(secondSaturday);
+  String fs = DateFormat("yyyy-MM-dd").format(fourthSaturday);
+  String fis = DateFormat("yyyy-MM-dd").format(fifthSaturday);
+  String nn = DateFormat("yyyy-MM-dd").format(now);
+  if (nn == ss || nn == fs || nn == fis) {
+    return;
   }
-  DateTime _getNextSaturday(DateTime date) {
-    final daysUntilNextSaturday = DateTime.saturday - date.weekday;
-    return date.add(Duration(days: daysUntilNextSaturday));
-  }
-  fetchData() async {
 
-    const credential=r'''
+  print("[$now] Hello, world! isolate=${isolateId} function='$printHello'");
+  // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
+  // await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+
+  if (now.hour == 11) {
+    await KredilyClock().sendNotification(KredilyClock.taskTitleString,
+        KredilyClock.taskBodyString, KredilyClock.topicScaleupString);
+    // flutterLocalNotificationsPlugin.show(12, 'Auto Task notification ', 'TaskList Notification Has send successfully', NotificationDetails(android: AndroidNotificationDetails("12","sad","das")),payload: "");
+  } else if (now.hour == 23) {
+    fetchData();
+    // flutterLocalNotificationsPlugin.show(12, 'Remaining members hour logs', 'Notification send to remaining member who has not fill their hour logs', NotificationDetails(android: AndroidNotificationDetails("12","sad","das")),payload: "");
+  } else if (now.hour == 19) {
+    await KredilyClock().sendNotification(KredilyClock.hourTitleString,
+        KredilyClock.hourBodyString, KredilyClock.topicScaleupString);
+    // flutterLocalNotificationsPlugin.show(12, 'Auto Hour logs notification ', 'Hour logs Notification Has send successfully', NotificationDetails(android: AndroidNotificationDetails("12","sad","das")),payload: "");
+  }
+}
+
+DateTime _getNextSaturday(DateTime date) {
+  final daysUntilNextSaturday = DateTime.saturday - date.weekday;
+  return date.add(Duration(days: daysUntilNextSaturday));
+}
+
+fetchData() async {
+  const credential = r'''
   {
   "type": "service_account",
   "project_id": "myspreadsheet-381908",
@@ -101,83 +104,86 @@ class AlarmClass{
 }
 ''';
 
-    var spreadSheetId="1TRjzU-PAkm3_rQJpmL1aWo4r-jJDh200XlmAVfvZukI";
-    var spreadSheet;
-    final gsheets = GSheets(credential);
-    spreadSheet =await gsheets.spreadsheet(spreadSheetId);
+  var spreadSheetId = "1TRjzU-PAkm3_rQJpmL1aWo4r-jJDh200XlmAVfvZukI";
+  var spreadSheet;
+  final gsheets = GSheets(credential);
+  spreadSheet = await gsheets.spreadsheet(spreadSheetId);
 
-    var memberList=[];
-    List<String> emailList=[];
-    Worksheet sheet=spreadSheet.worksheetByTitle("Data sheet");
-    memberList=(await sheet.values.columnByKey("Team Member Name"))!;
-    var statusList=(await sheet.values.columnByKey("Current Status"))!;
-    var levelList=(await sheet.values.columnByKey("Level of Members"))!;
-    emailList=(await sheet.values.columnByKey("Email"))!;
+  var memberList = [];
+  List<String> emailList = [];
+  Worksheet sheet = spreadSheet.worksheetByTitle("Data Sheet");
+  memberList = (await sheet.values.columnByKey("Team Member Name"))!;
+  var statusList = (await sheet.values.columnByKey("Current Status"))!;
+  var levelList = (await sheet.values.columnByKey("Level of Members"))!;
+  emailList = (await sheet.values.columnByKey("Email"))!;
 
-    statusList=statusList.sublist(0,memberList.length);
-    levelList=levelList.sublist(0,memberList.length);
-    emailList=emailList.sublist(0,memberList.length);
+  statusList = statusList.sublist(0, memberList.length);
+  levelList = levelList.sublist(0, memberList.length);
+  emailList = emailList.sublist(0, memberList.length);
 
-    for(int i=0;i<statusList.length;i++){
-      if(statusList[i]=="Inactive"){
-        memberList[i]='-1';
-        emailList[i]='-1';
-      }
-      if(levelList[i]=="Lead Member"){
-        memberList[i]='-1';
-        emailList[i]='-1';
+  for (int i = 0; i < statusList.length; i++) {
+    if (statusList[i] == "Inactive") {
+      memberList[i] = '-1';
+      emailList[i] = '-1';
+    }
+    if (levelList[i] == "Lead Member") {
+      memberList[i] = '-1';
+      emailList[i] = '-1';
+    }
+  }
+  memberList.removeWhere((e) => e == '-1');
+  emailList.removeWhere((e) => e == '-1');
+
+  int indd = memberList.indexOf("Sparsh Gupta");
+  memberList.removeAt(indd);
+  emailList.removeAt(indd);
+
+  print('AFTERRRR ${memberList.length}');
+  print('AFTERRRR ${emailList.length}');
+
+  // print(memberList);
+  // print(emailList);
+
+  Worksheet sheet2 = spreadSheet.worksheetByTitle("Hours Log");
+  var allRow = await sheet2.values.allRows();
+
+  if (allRow.isEmpty) return;
+  if (allRow[allRow.length - 1][0].isEmpty) return;
+  const gsDateBase = 2209161600 / 86400;
+  const gsDateFactor = 86400000;
+
+  final date = double.tryParse(allRow[allRow.length - 1][0]);
+  if (date == null) return null;
+  final millis = (date - gsDateBase) * gsDateFactor;
+  DateTime dateTimeGet =
+      DateTime.fromMillisecondsSinceEpoch(millis.toInt(), isUtc: true);
+  String formattedDateTime = DateFormat('dd-MM-yyyy').format(dateTimeGet);
+  String formattedNow = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  if (formattedDateTime == formattedNow) {
+    List newList = allRow
+        .where((element) => element[0] == allRow[allRow.length - 1][0])
+        .map((e) => e[1])
+        .toList();
+    // memberList.removeWhere((e) => newList.contains(e));
+    List indexList = [];
+    for (int i = 0; i < memberList.length; i++) {
+      if (newList.contains(memberList[i])) {
+        indexList.add(i);
       }
     }
-    memberList.removeWhere((e) => e=='-1');
-    emailList.removeWhere((e) => e=='-1');
-
-    int indd=memberList.indexOf("Sparsh Gupta");
-    memberList.removeAt(indd);
-    emailList.removeAt(indd);
-
-    print('AFTERRRR ${memberList.length}');
-    print('AFTERRRR ${emailList.length}');
-
-    // print(memberList);
-    // print(emailList);
-
-    Worksheet sheet2=spreadSheet.worksheetByTitle("Worksheet1");
-    var allRow=await sheet2.values.allRows();
-
-    if(allRow.isEmpty) return;
-    if(allRow[allRow.length-1][0].isEmpty) return;
-    const gsDateBase = 2209161600 / 86400;
-    const gsDateFactor = 86400000;
-
-    final date = double.tryParse(allRow[allRow.length-1][0]);
-    if (date == null) return null;
-    final millis = (date - gsDateBase) * gsDateFactor;
-    DateTime dateTimeGet=DateTime.fromMillisecondsSinceEpoch(millis.toInt(), isUtc: true);
-    String formattedDateTime=DateFormat('dd-MM-yyyy').format(dateTimeGet);
-    String formattedNow=DateFormat('dd-MM-yyyy').format(DateTime.now());
-    if(formattedDateTime==formattedNow){
-
-      List newList=allRow.where((element) => element[0]==allRow[allRow.length-1][0]).map((e) => e[1]).toList();
-      // memberList.removeWhere((e) => newList.contains(e));
-      List indexList=[];
-      for(int i=0;i<memberList.length;i++){
-        if(newList.contains(memberList[i])){
-          indexList.add(i);
-        }
-      }
-      for(int x=indexList.length;x>0;x--){
-        print("INDEXXXXXXXXXX $x");
-        memberList.removeAt(x);
-        emailList.removeAt(x);
-      }
+    for (int x = indexList.length; x > 0; x--) {
+      print("INDEXXXXXXXXXX $x");
+      memberList.removeAt(x);
+      emailList.removeAt(x);
     }
-    for(int i=0;i<emailList.length;i++){
-      String title="Hours log Update";
-      String body="${memberList[i]} Please update your hours log";
-      print(memberList.length);
-      print(emailList.length);
-      print(i);
-      var value=await KredilyClock().sendNotification(title,body,emailList[i].toLowerCase().replaceAll('@', '.'));
-    }
+  }
+  for (int i = 0; i < emailList.length; i++) {
+    String title = "Hours log Update";
+    String body = "${memberList[i]} Please update your hours log";
+    print(memberList.length);
+    print(emailList.length);
+    print(i);
+    var value = await KredilyClock().sendNotification(
+        title, body, emailList[i].toLowerCase().replaceAll('@', '.'));
   }
 }

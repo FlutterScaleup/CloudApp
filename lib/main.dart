@@ -1,5 +1,3 @@
-import 'dart:isolate';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,7 +12,7 @@ import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const credential=r''' 
+const credential = r''' 
   {
   "type": "service_account",
   "project_id": "myspreadsheet-381908",
@@ -29,7 +27,9 @@ const credential=r'''
 }
 ''';
 
-var spreadSheetId="1TRjzU-PAkm3_rQJpmL1aWo4r-jJDh200XlmAVfvZukI";
+// var spreadSheetId="1TRjzU-PAkm3_rQJpmL1aWo4r-jJDh200XlmAVfvZukI";
+
+var spreadSheetId = "1c1AV0zQ6rFB4TjzX406fSBWwIXQpIoqaVE5-ctygOWU";
 var spreadSheet;
 late SharedPreferences sharedPreference;
 Future<void> main() async {
@@ -37,26 +37,37 @@ Future<void> main() async {
   sharedPreference = await SharedPreferences.getInstance();
   print(sharedPreference.get("verified"));
   final gsheets = GSheets(credential);
-  spreadSheet =await gsheets.spreadsheet(spreadSheetId);
+  spreadSheet = await gsheets.spreadsheet(spreadSheetId);
   await Firebase.initializeApp();
-  await FirebaseMessaging.instance.requestPermission(sound: true,badge: true,alert: true,criticalAlert: true,announcement: true);
+  await FirebaseMessaging.instance.requestPermission(
+      sound: true,
+      badge: true,
+      alert: true,
+      criticalAlert: true,
+      announcement: true);
 
-   FirebaseMessaging.onMessage.listen((event) async {
+  FirebaseMessaging.onMessage.listen((event) async {
     print("event ${event.data}");
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
-    flutterLocalNotificationsPlugin.show(1, event.data['title'], event.data['body'], NotificationDetails(android: AndroidNotificationDetails("1","sad")));
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin.initialize(InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+    flutterLocalNotificationsPlugin.show(
+        1,
+        event.data['title'] + "listen",
+        event.data['body'],
+        NotificationDetails(android: AndroidNotificationDetails("1", "sad")));
   });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(const MyApp());
 }
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
-  await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
-  flutterLocalNotificationsPlugin.show(1, message.data['title'], message.data['body'], NotificationDetails(android: AndroidNotificationDetails("1","sad")),payload: "");
-
+  // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
+  // await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+  // flutterLocalNotificationsPlugin.show(1, message.data['title']+" background", message.data['body'], NotificationDetails(android: AndroidNotificationDetails("1","sad")),payload: "");
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -65,15 +76,12 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true
-      ),
-      // home: HelloPage(),
-      // home: const MyHomePage(title: 'Hours Log'),
-      // home: OnboardScreen(),
-      // home: LoginPage(),
-      home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?OnboardScreen():const HelloPage(),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+
+      home: sharedPreference.get("verified") == null ||
+              sharedPreference.getString("verified")!.isEmpty
+          ? OnboardScreen()
+          : const HelloPage(),
       // home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?OnboardScreen():const HelloPage(),
     );
   }
@@ -88,23 +96,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  String now='Select Date';
-  List<SelectedListItem> selectedMemberList=[];
-  String selectedMemberValue="Member Name";
-  List<SelectedListItem> selectedProjectList=[];
-  String selectedProjectValue="Project Name";
-  List<SelectedListItem> selectedTaskList=[];
-  String selectedTaskValue="Category of Task";
-  List<SelectedListItem> selectedSubTaskList=[];
-  String selectedSubTaskValue="Sub Category of Task";
-  List<SelectedListItem> selectedHourList=[];
-  String selectedHourValue="Time (in hrs)";
-  TextEditingController textEditingController=TextEditingController();
+  String now = 'Select Date';
+  List<SelectedListItem> selectedMemberList = [];
+  String selectedMemberValue = "Member Name";
+  List<SelectedListItem> selectedProjectList = [];
+  String selectedProjectValue = "Project Name";
+  List<SelectedListItem> selectedTaskList = [];
+  String selectedTaskValue = "Category of Task";
+  List<SelectedListItem> selectedSubTaskList = [];
+  String selectedSubTaskValue = "Sub Category of Task";
+  List<SelectedListItem> selectedHourList = [];
+  String selectedHourValue = "Time (in hrs)";
+  TextEditingController textEditingController = TextEditingController();
   // late SharedPreferences sharedPrefrence;
-  bool isLoading=true;
-  List list=[];
-  bool progress=false;
+  bool isLoading = true;
+  List list = [];
+  bool progress = false;
 
   var coreTasKIDList;
   var helpTasKIDList;
@@ -115,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    var justNow=DateTime.now();
+    var justNow = DateTime.now();
     now = DateFormat('dd-MMMM-yyyy').format(justNow);
 
     getInitialData();
@@ -123,68 +130,77 @@ class _MyHomePageState extends State<MyHomePage> {
 
   getInitialData() async {
     // sharedPrefrence = await SharedPreferences.getInstance();
-    var member=sharedPreference.get("member");
+    var member = sharedPreference.get("member");
     print("Memberrrr $member");
-    if(member!=null){
-      selectedMemberValue=member.toString();
+    if (member != null) {
+      selectedMemberValue = member.toString();
     }
-    Worksheet sheet=spreadSheet.worksheetByTitle("Data sheet");
+    Worksheet sheet = spreadSheet.worksheetByTitle("Data Sheet");
     print(await sheet.values.columnByKey("Project Name"));
-    var itemsMember=(await sheet.values.columnByKey("Team Member Name"))!;
-    var itemsProject=(await sheet.values.columnByKey("Project Name"))!;
-    var itemsTask=(await sheet.values.columnByKey("Category of Task"))!;
-    var itemsHours=(await sheet.values.columnByKey("Hours"))!;
+    var itemsMember = (await sheet.values.columnByKey("Team Member Name"))!;
+    var itemsProject = (await sheet.values.columnByKey("Project Name"))!;
+    var itemsTask = (await sheet.values.columnByKey("Category of Task"))!;
+    var itemsHours = (await sheet.values.columnByKey("Hours"))!;
 
+    coreTasKIDList = (await sheet.values.columnByKey("Core Task ID"))!;
+    helpTasKIDList = (await sheet.values.columnByKey("Help Task ID"))!;
+    rnDTaskIDList = (await sheet.values.columnByKey("R&D Task ID"))!;
+    otherTaskIDList =
+        (await sheet.values.columnByKey("Other Work-Related Task ID"))!;
+    leisureTaskIDList = (await sheet.values.columnByKey("Leisure Task ID"))!;
 
-    coreTasKIDList=(await sheet.values.columnByKey("Core Task ID"))!;
-    helpTasKIDList=(await sheet.values.columnByKey("Help Task ID"))!;
-    rnDTaskIDList=(await sheet.values.columnByKey("R&D Task ID"))!;
-    otherTaskIDList=(await sheet.values.columnByKey("Other Work-Related Task ID"))!;
-    leisureTaskIDList=(await sheet.values.columnByKey("Leisure Task ID"))!;
-
-    if(selectedMemberValue=="Member Name"){
-      var emailList=(await sheet.values.columnByKey("Email"))!;
-      if(sharedPreference.get("email")!=null && sharedPreference.get("email").toString().isNotEmpty){
-        if(emailList.contains(sharedPreference.get("email"))){
-          String email=sharedPreference.get("email").toString();
-          var index=emailList.indexOf(email);
-          selectedMemberValue=itemsMember[index];
+    if (selectedMemberValue == "Member Name") {
+      var emailList = (await sheet.values.columnByKey("Email"))!;
+      if (sharedPreference.get("email") != null &&
+          sharedPreference.get("email").toString().isNotEmpty) {
+        if (emailList.contains(sharedPreference.get("email"))) {
+          String email = sharedPreference.get("email").toString();
+          var index = emailList.indexOf(email);
+          selectedMemberValue = itemsMember[index];
           sharedPreference.setString("member", selectedMemberValue);
         }
       }
     }
-    for(String x in itemsMember){
+    for (String x in itemsMember) {
       selectedMemberList.add(SelectedListItem(name: x));
     }
-    for(String x in itemsProject){
+    for (String x in itemsProject) {
       selectedProjectList.add(SelectedListItem(name: x));
     }
-    for(String x in itemsTask){
+    for (String x in itemsTask) {
       selectedTaskList.add(SelectedListItem(name: x));
     }
-    for(String x in itemsHours){
+    for (String x in itemsHours) {
       selectedHourList.add(SelectedListItem(name: x));
     }
-    isLoading=false;
-    setState(() {
-    });
+    isLoading = false;
+    setState(() {});
   }
-  sheetWork()async{
-    var sheet=spreadSheet.worksheetByTitle("Worksheet1");
+
+  sheetWork() async {
+    var sheet = spreadSheet.worksheetByTitle("Hours Log");
     print(sheet);
     // await sheet!.values.insertValue('koko', column: 1, row: 1);
     // await sheet.values.insertColumn(7, ['qwer']);
-    var allRow=await sheet!.values.allRows();
+    var allRow = await sheet!.values.allRows();
     // print(allRow.length);
-    int length=allRow.length;
-    for(int i=0;i<list.length;i++){
-      length=length+1;
-      await sheet.values.insertRow(length, [list[i]['date'],list[i]['member'],list[i]['project'],list[i]['task'],list[i]['subTask'],list[i]['desc'],list[i]['hour']]);
+    int length = allRow.length;
+    for (int i = 0; i < list.length; i++) {
+      print(list[i]['hour']);
+      length = length + 1;
+      await sheet.values.insertRow(length, [
+        list[i]['date'],
+        list[i]['member'],
+        list[i]['project'],
+        list[i]['task'],
+        list[i]['subTask'],
+        list[i]['desc'],
+        list[i]['hour']
+      ]);
     }
-    list=[];
-    progress=false;
-    setState(() {
-    });
+    list = [];
+    progress = false;
+    setState(() {});
 
     // textEditingController.text='';
     // selectedProjectValue="Project Name";
@@ -195,40 +211,48 @@ class _MyHomePageState extends State<MyHomePage> {
     Fluttertoast.showToast(msg: "Hours Log Updated Successfully");
   }
 
-  insertToList(){
-    if(selectedMemberValue=="Member Name"){
+  insertToList() {
+    if (selectedMemberValue == "Member Name") {
       Fluttertoast.showToast(msg: "Select Member Name");
       return;
     }
-    if(selectedProjectValue=="Project Name"){
+    if (selectedProjectValue == "Project Name") {
       Fluttertoast.showToast(msg: "Select Project Name");
       return;
     }
-    if(selectedTaskValue=="Category of Task"){
+    if (selectedTaskValue == "Category of Task") {
       Fluttertoast.showToast(msg: "Select Category of Task");
       return;
     }
-    if(selectedSubTaskValue=="Sub Category of Task"){
+    if (selectedSubTaskValue == "Sub Category of Task") {
       Fluttertoast.showToast(msg: "Select Sub Category of Task");
       return;
     }
-    if(selectedHourValue=="Time (in hrs)"){
+    if (selectedHourValue == "Time (in hrs)") {
       Fluttertoast.showToast(msg: "Select Time (in hrs)");
       return;
     }
-    if(textEditingController.text.isEmpty){
+    if (textEditingController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Write Work description");
       return;
     }
     // sheetWork();
-    list.add({"date":now,"member":selectedMemberValue,"project":selectedProjectValue,"task":selectedTaskValue,"subTask":selectedSubTaskValue,"desc":textEditingController.text,"hour":selectedHourValue});
-    textEditingController.text='';
-    selectedProjectValue="Project Name";
-    selectedTaskValue="Category of Task";
-    selectedSubTaskValue="Sub Category of Task";
-    selectedHourValue="Time (in hrs)";
-    setState(() {
+    list.add({
+      "date": now,
+      "member": selectedMemberValue,
+      "project": selectedProjectValue,
+      "task": selectedTaskValue,
+      "subTask": selectedSubTaskValue,
+      "desc": textEditingController.text,
+      "hour": selectedHourValue
     });
+
+    textEditingController.text = '';
+    selectedProjectValue = "Project Name";
+    selectedTaskValue = "Category of Task";
+    selectedSubTaskValue = "Sub Category of Task";
+    selectedHourValue = "Time (in hrs)";
+    setState(() {});
     Fluttertoast.showToast(msg: "Added to list");
   }
 
@@ -236,206 +260,424 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title,style: TextStyle(fontWeight: FontWeight.bold)),
+        title:
+            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: RefreshIndicator(
-        onRefresh: () async{
-          isLoading=true;
-          selectedMemberList=[];
-          selectedProjectList=[];
-          selectedTaskList=[];
-          selectedHourList=[];
-          textEditingController.text='';
-          selectedProjectValue="Project Name";
-          selectedTaskValue="Category of Task";
-          selectedHourValue="Time (in hrs)";
-          setState(() {
-          });
+        onRefresh: () async {
+          isLoading = true;
+          selectedMemberList = [];
+          selectedProjectList = [];
+          selectedTaskList = [];
+          selectedHourList = [];
+          textEditingController.text = '';
+          selectedProjectValue = "Project Name";
+          selectedTaskValue = "Category of Task";
+          selectedHourValue = "Time (in hrs)";
+          setState(() {});
           getInitialData();
         },
-
-        child: isLoading==true?Center(child: CircularProgressIndicator(color: Colors.red,)):SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(children: [
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  showDate();
-                },child: Container(padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Text('$now',style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),)))
-              ],),
-              SizedBox(height: 16,),
-
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  if(selectedMemberValue=="Member Name"){
-                    showMember();
-                  }
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedMemberValue=="Member Name"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(selectedMemberValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                      ),
-                      selectedMemberValue=="Member Name"?Icon(Icons.arrow_drop_down,color: Colors.black,):SizedBox()
-                    ],
-                  ),),
-                ))
-              ],),
-              SizedBox(height: 16,),
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  showProject();
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedProjectValue=="Project Name"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(selectedProjectValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                      ),
-                      Icon(Icons.arrow_drop_down,color: Colors.black,)
-                    ],
-                  ),),
-                ))
-              ],),
-              SizedBox(height: 16,),
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  showTask();
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedTaskValue=="Category of Task"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(selectedTaskValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                      ),
-                      Icon(Icons.arrow_drop_down,color: Colors.black,)
-                    ],
-                  ),),
-                ))
-              ],),
-
-              SizedBox(height: 16,),
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  if(selectedSubTaskList.isEmpty){
-                    Fluttertoast.showToast(msg: "Select Category first");
-                    return;
-                  }
-                  showSubTask();
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedSubTaskValue=="Sub Category of Task"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(selectedSubTaskValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                      ),
-                      Icon(Icons.arrow_drop_down,color: Colors.black,)
-                    ],
-                  ),),
-                ))
-              ],),
-
-              SizedBox(height: 16,),
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  showHours();
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: selectedHourValue=="Time (in hrs)"?Colors.grey[200]:Colors.blueGrey[200],borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(selectedHourValue,style: TextStyle(color: Colors.black),textAlign: TextAlign.center,),
-                      ),
-                      Icon(Icons.arrow_drop_down,color: Colors.black,)
-                    ],
-                  ),),
-                ))
-              ],),
-              SizedBox(height: 16,),
-              Container(padding: EdgeInsets.only(left: 16,right: 16),decoration: BoxDecoration(color: Colors.grey[200],borderRadius: BorderRadius.circular(10) ),child: TextField(controller: textEditingController,minLines: 4,maxLines: 10,decoration: InputDecoration(border: InputBorder.none,hintText: "Work description",hintStyle: TextStyle()),style: TextStyle())),
-
-              SizedBox(height: 16,),
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  insertToList();
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("ADD",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
-                      ),
-                    ],
-                  ),),
-                ))
-              ],),
-
-              SizedBox(height: 16,),
-              ListView.separated(itemCount: list.length,shrinkWrap: true,primary: false,itemBuilder: (itemBuilder,index){
-                return ListTile(
-                  title: Text(list[index]['project']),
-                  subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start,
+        child: isLoading == true
+            ? Center(
+                child: CircularProgressIndicator(
+                color: Colors.red,
+              ))
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
                       Row(
                         children: [
-                          Text(list[index]['date']),
-                          SizedBox(width: 16,),
-                          Text(list[index]['hour']+"hrs"),
-
-                          // Text(DateFormat("dd-MMMM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
+                          Expanded(
+                              child: InkWell(
+                                  onTap: () {
+                                    showDate();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                        color: Colors.blueGrey[200],
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Text(
+                                      '$now',
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )))
                         ],
                       ),
-                      Text(list[index]['task']),
-                      Text(list[index]['subTask']),
-                      Text(list[index]['desc'],style: TextStyle(fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                  trailing: Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(onTap: (){
-                        list.removeAt(index);
-                        setState(() {
-                        });
-                      },child: Icon(Icons.delete,color: Colors.red,)),
-                    ],
-                  ),
-
-                );
-              }, separatorBuilder: (BuildContext context, int index) {
-                return Divider();
-              },),
-
-              SizedBox(height: 16,),
-              list.isEmpty?SizedBox():
-              progress==true?
-              Row(mainAxisAlignment: MainAxisAlignment.center,children: [
-                Container(padding: EdgeInsets.all(8),decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(30)),width: 50,height: 50,child: CircularProgressIndicator(color: Colors.white,),)
-              ],):
-              Row(children: [
-                Expanded(child: InkWell(onTap: (){
-                  progress=true;
-                  setState(() {
-                  });
-                  sheetWork();
-                },
-                  child: Container(alignment: Alignment.center,decoration: BoxDecoration(color: Colors.blueAccent,borderRadius: BorderRadius.circular(10)),child: Row(mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text("SUBMIT",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                      SizedBox(
+                        height: 16,
                       ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                            onTap: () {
+                              if (selectedMemberValue == "Member Name") {
+                                showMember();
+                              }
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: selectedMemberValue == "Member Name"
+                                      ? Colors.grey[200]
+                                      : Colors.blueGrey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      selectedMemberValue,
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  selectedMemberValue == "Member Name"
+                                      ? Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.black,
+                                        )
+                                      : SizedBox()
+                                ],
+                              ),
+                            ),
+                          ))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                            onTap: () {
+                              showProject();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: selectedProjectValue == "Project Name"
+                                      ? Colors.grey[200]
+                                      : Colors.blueGrey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      selectedProjectValue,
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                            onTap: () {
+                              showTask();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: selectedTaskValue == "Category of Task"
+                                      ? Colors.grey[200]
+                                      : Colors.blueGrey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      selectedTaskValue,
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                            onTap: () {
+                              if (selectedSubTaskList.isEmpty) {
+                                Fluttertoast.showToast(
+                                    msg: "Select Category first");
+                                return;
+                              }
+                              showSubTask();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: selectedSubTaskValue ==
+                                          "Sub Category of Task"
+                                      ? Colors.grey[200]
+                                      : Colors.blueGrey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      selectedSubTaskValue,
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                            onTap: () {
+                              showHours();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: selectedHourValue == "Time (in hrs)"
+                                      ? Colors.grey[200]
+                                      : Colors.blueGrey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      selectedHourValue,
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Container(
+                          padding: EdgeInsets.only(left: 16, right: 16),
+                          decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10)),
+                          child: TextField(
+                              controller: textEditingController,
+                              minLines: 4,
+                              maxLines: 10,
+                              decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Work description",
+                                  hintStyle: TextStyle()),
+                              style: TextStyle())),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                            onTap: () {
+                              insertToList();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      "ADD",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      ListView.separated(
+                        itemCount: list.length,
+                        shrinkWrap: true,
+                        primary: false,
+                        itemBuilder: (itemBuilder, index) {
+                          return ListTile(
+                            title: Text(list[index]['project']),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(list[index]['date']),
+                                    SizedBox(
+                                      width: 16,
+                                    ),
+                                    Text(list[index]['hour'] + "hrs"),
+
+                                    // Text(DateFormat("dd-MMMM").format(DateFormat("dd-MMMM-yyyy").parse(list[index]['date']))),
+                                  ],
+                                ),
+                                Text(list[index]['task']),
+                                Text(list[index]['subTask']),
+                                Text(list[index]['desc'],
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500)),
+                              ],
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                    onTap: () {
+                                      list.removeAt(index);
+                                      setState(() {});
+                                    },
+                                    child: Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    )),
+                              ],
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Divider();
+                        },
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      list.isEmpty
+                          ? SizedBox()
+                          : progress == true
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius:
+                                              BorderRadius.circular(30)),
+                                      width: 50,
+                                      height: 50,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Expanded(
+                                        child: InkWell(
+                                      onTap: () {
+                                        progress = true;
+                                        setState(() {});
+                                        sheetWork();
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            color: Colors.blueAccent,
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(16.0),
+                                              child: Text(
+                                                "SUBMIT",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ))
+                                  ],
+                                ),
                     ],
-                  ),),
-                ))
-              ],),
-            ],),
-          ),
-        ),
+                  ),
+                ),
+              ),
       ),
     );
   }
-  showMember(){
+
+  showMember() {
     DropDownState(
       DropDown(
         bottomSheetTitle: Text(
@@ -456,15 +698,14 @@ class _MyHomePageState extends State<MyHomePage> {
         // data: widget.cities ?? [],
         selectedItems: (List<dynamic> selectedList) {
           List<String> list = [];
-          for(var item in selectedList) {
-            if(item is SelectedListItem) {
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
               list.add(item.name);
             }
           }
           print(list);
-          selectedMemberValue=list.first;
-          setState(() {
-          });
+          selectedMemberValue = list.first;
+          setState(() {});
           sharedPreference.setString("member", selectedMemberValue);
           // showSnackBar(list.toString());
         },
@@ -472,7 +713,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ).showModal(context);
   }
-  showProject(){
+
+  showProject() {
     DropDownState(
       DropDown(
         bottomSheetTitle: Text(
@@ -493,22 +735,22 @@ class _MyHomePageState extends State<MyHomePage> {
         // data: widget.cities ?? [],
         selectedItems: (List<dynamic> selectedList) {
           List<String> list = [];
-          for(var item in selectedList) {
-            if(item is SelectedListItem) {
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
               list.add(item.name);
             }
           }
           print(list);
-          selectedProjectValue=list.first;
-          setState(() {
-          });
+          selectedProjectValue = list.first;
+          setState(() {});
           // showSnackBar(list.toString());
         },
         enableMultipleSelection: false,
       ),
     ).showModal(context);
   }
-  showTask(){
+
+  showTask() {
     DropDownState(
       DropDown(
         bottomSheetTitle: Text(
@@ -529,36 +771,35 @@ class _MyHomePageState extends State<MyHomePage> {
         // data: widget.cities ?? [],
         selectedItems: (List<dynamic> selectedList) {
           List<String> list = [];
-          for(var item in selectedList) {
-            if(item is SelectedListItem) {
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
               list.add(item.name);
             }
           }
           print(list);
-          selectedTaskValue=list.first;
-          selectedSubTaskValue='Sub Category of Task';
-          selectedSubTaskList=[];
-          setState(() {
-          });
+          selectedTaskValue = list.first;
+          selectedSubTaskValue = 'Sub Category of Task';
+          selectedSubTaskList = [];
+          setState(() {});
 
-          if(selectedTaskValue=="Core task"){
-            for(String x in coreTasKIDList){
+          if (selectedTaskValue == "Core task") {
+            for (String x in coreTasKIDList) {
               selectedSubTaskList.add(SelectedListItem(name: x));
             }
-          }else if(selectedTaskValue=="Help task"){
-            for(String x in helpTasKIDList){
+          } else if (selectedTaskValue == "Help task") {
+            for (String x in helpTasKIDList) {
               selectedSubTaskList.add(SelectedListItem(name: x));
             }
-          }else if(selectedTaskValue=="R&D task"){
-            for(String x in rnDTaskIDList){
+          } else if (selectedTaskValue == "R&D task") {
+            for (String x in rnDTaskIDList) {
               selectedSubTaskList.add(SelectedListItem(name: x));
             }
-          }else if(selectedTaskValue=="Other work-related tasks"){
-            for(String x in otherTaskIDList){
+          } else if (selectedTaskValue == "Other work-related tasks") {
+            for (String x in otherTaskIDList) {
               selectedSubTaskList.add(SelectedListItem(name: x));
             }
-          }else if(selectedTaskValue=="Leisure tasks"){
-            for(String x in leisureTaskIDList){
+          } else if (selectedTaskValue == "Leisure tasks") {
+            for (String x in leisureTaskIDList) {
               selectedSubTaskList.add(SelectedListItem(name: x));
             }
           }
@@ -569,7 +810,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ).showModal(context);
   }
-  showSubTask(){
+
+  showSubTask() {
     DropDownState(
       DropDown(
         bottomSheetTitle: Text(
@@ -590,22 +832,22 @@ class _MyHomePageState extends State<MyHomePage> {
         // data: widget.cities ?? [],
         selectedItems: (List<dynamic> selectedList) {
           List<String> list = [];
-          for(var item in selectedList) {
-            if(item is SelectedListItem) {
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
               list.add(item.name);
             }
           }
           print(list);
-          selectedSubTaskValue=list.first;
-          setState(() {
-          });
+          selectedSubTaskValue = list.first;
+          setState(() {});
           // showSnackBar(list.toString());
         },
         enableMultipleSelection: false,
       ),
     ).showModal(context);
   }
-  showHours(){
+
+  showHours() {
     DropDownState(
       DropDown(
         bottomSheetTitle: Text(
@@ -626,28 +868,30 @@ class _MyHomePageState extends State<MyHomePage> {
         // data: widget.cities ?? [],
         selectedItems: (List<dynamic> selectedList) {
           List<String> list = [];
-          for(var item in selectedList) {
-            if(item is SelectedListItem) {
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
               list.add(item.name);
             }
           }
           print(list);
-          selectedHourValue=list.first;
-          setState(() {
-          });
+          selectedHourValue = list.first;
+          setState(() {});
           // showSnackBar(list.toString());
         },
         enableMultipleSelection: false,
       ),
     ).showModal(context);
   }
-  
-  showDate()async {
-    var selectedDate=await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now().subtract(Duration(days: 365)), lastDate: DateTime.now());
-    if(selectedDate!=null){
+
+  showDate() async {
+    var selectedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now().subtract(Duration(days: 365)),
+        lastDate: DateTime.now());
+    if (selectedDate != null) {
       now = DateFormat('dd-MMMM-yyyy').format(selectedDate);
     }
-    setState(() {
-    });
+    setState(() {});
   }
 }
