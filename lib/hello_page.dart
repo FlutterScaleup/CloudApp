@@ -9,7 +9,10 @@ import 'package:flutter_gsheet/kredily_clock.dart';
 import 'package:flutter_gsheet/leave_page.dart';
 import 'package:flutter_gsheet/login_page.dart';
 import 'package:flutter_gsheet/my_controller.dart';
+import 'package:flutter_gsheet/views/hours_log_screen_bi.dart';
+import 'package:flutter_gsheet/views/hours_log_screen_cloud.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 
 class HelloPage extends StatefulWidget {
@@ -431,19 +434,24 @@ class _HelloPageState extends State<HelloPage> {
                                     height: 16,
                                   ),
                                   InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (builder) =>
-                                                    MyHomePage(
-                                                        title: "Hours Log")));
+                                      onTap: () async {
+                                        SharedPreferences sharedPreferences =
+                                            await SharedPreferences
+                                                .getInstance();
+                                        sharedPreferences
+                                                    .getString('isFromCloud') ==
+                                                "true"
+                                            ? Get.to(() => HoursLogScreenCloud(
+                                                title: "Hours Log Cloud"))
+                                            : Get.to(() => HoursLogScreenBi(
+                                                title: "Hours Log BI"));
                                       },
                                       child: Material(
                                           elevation: 2,
                                           borderRadius:
                                               BorderRadius.circular(16),
                                           child: Container(
+           
                                             padding: EdgeInsets.only(
                                                 top: 8,
                                                 bottom: 8,

@@ -100,6 +100,84 @@ class _AdminPageState extends State<AdminPage> {
     // print("LIAAAAAAAAAAA!!@@@ ${emailList.length}");
   }
 
+
+fetchDataBI() async {
+    Worksheet sheet = spreadSheetBI.worksheetByTitle("Sheet6");
+    memberList = (await sheet.values.columnByKey("Name"))!;
+
+    // TODO check this out
+    var statusList = (await sheet.values.columnByKey("Current Status"))!;
+    var levelList = (await sheet.values.columnByKey("Level of Members"))!;
+    emailList = (await sheet.values.columnByKey("Email"))!;
+
+    statusList = statusList.sublist(0, memberList.length);
+    levelList = levelList.sublist(0, memberList.length);
+    emailList = emailList.sublist(0, memberList.length);
+
+    for (int i = 0; i < statusList.length; i++) {
+      if (statusList[i] == "Inactive") {
+        memberList[i] = '-1';
+        emailList[i] = '-1';
+      }
+      if (levelList[i] == "Lead Member") {
+        memberList[i] = '-1';
+        emailList[i] = '-1';
+      }
+    }
+    memberList.removeWhere((e) => e == '-1');
+    emailList.removeWhere((e) => e == '-1');
+
+    int indd = memberList.indexOf("Sparsh Gupta");
+    memberList.removeAt(indd);
+    emailList.removeAt(indd);
+
+    print('AFTERRRR ${memberList.length}');
+    print('AFTERRRR ${emailList.length}');
+
+    // print(memberList);
+    // print(emailList);
+
+    Worksheet sheet2 = spreadSheet.worksheetByTitle("Sheet1");
+    var allRow = await sheet2.values.allRows();
+
+    if (allRow.isEmpty) return;
+    if (allRow[allRow.length - 1][0].isEmpty) return;
+    const gsDateBase = 2209161600 / 86400;
+    const gsDateFactor = 86400000;
+
+    final date = double.tryParse(allRow[allRow.length - 1][0]);
+    if (date == null) return null;
+    final millis = (date - gsDateBase) * gsDateFactor;
+    DateTime dateTimeGet =
+        DateTime.fromMillisecondsSinceEpoch(millis.toInt(), isUtc: true);
+    String formattedDateTime = DateFormat('dd-MM-yyyy').format(dateTimeGet);
+    String formattedNow = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    if (formattedDateTime == formattedNow) {
+      List newList = allRow
+          .where((element) => element[0] == allRow[allRow.length - 1][0])
+          .map((e) => e[1])
+          .toList();
+      // memberList.removeWhere((e) => newList.contains(e));
+      List indexList = [];
+      for (int i = 0; i < memberList.length; i++) {
+        if (newList.contains(memberList[i])) {
+          indexList.add(i);
+        }
+      }
+      for (int x = indexList.length; x > 0; x--) {
+        print("INDEXXXXXXXXXX $x");
+        memberList.removeAt(x);
+        emailList.removeAt(x);
+      }
+    }
+    setState(() {});
+    // print("LIAAAAAAAAAAA ${memberList.length}");
+    // print("LIAAAAAAAAAAA!!@@@ ${emailList.length}");
+  }
+
+
+
+
   sendMess() async {
     if (value1 == false && value2 == false) {
       Fluttertoast.showToast(msg: "Select one option");

@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_gsheet/hello_page.dart';
 import 'package:flutter_gsheet/my_controller.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -105,6 +103,7 @@ class KredilyClock{
           myController.loginLoading.value=false;
           FirebaseMessaging.instance.subscribeToTopic(KredilyClock.topicScaleupString);
           FirebaseMessaging.instance.subscribeToTopic(myController.textEditingControllerEmail.text.toLowerCase().replaceAll('@', '.'));
+
           Get.off(()=> HelloPage());
         }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gsheet/kredily_clock.dart';
 import 'package:flutter_gsheet/main.dart';
 import 'package:flutter_gsheet/my_controller.dart';
+import 'package:flutter_gsheet/widgets/radio_button_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  
   TextEditingController textEditingControllerPass = TextEditingController();
   var animateWidth;
   MyController myController = Get.put(MyController());
@@ -44,13 +46,17 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     if (textEditingControllerPass.text.isEmpty) {
-      Fluttertoast.showToast(msg: "Pass can't be empty");
+      Fluttertoast.showToast(msg: "Password can't be empty");
       return;
     }
     if (textEditingControllerPass.text.length < 5) {
-      Fluttertoast.showToast(msg: "Pass is too small");
+      Fluttertoast.showToast(msg: "Password is too small");
       return;
     }
+if(myController.isOptionSelected.value==false){
+  Fluttertoast.showToast(msg: "Please select option");
+      return;
+}
     if (myController.loginLoading.value == true) {
       return;
     }
@@ -136,8 +142,16 @@ class _LoginPageState extends State<LoginPage> {
                                       : Icons.visibility))),
                         )),
                     SizedBox(
-                      height: 50,
+                      height: 10,
                     ),
+
+                    // create radio 2 button
+
+                    RadioButtonsWidget(),
+                       SizedBox(
+                      height: 10,
+                    ),
+                    
                     Obx(() => myController.loginLoading.value == true
                         ? SizedBox()
                         : Row(

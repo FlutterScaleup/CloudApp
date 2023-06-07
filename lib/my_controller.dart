@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MyController extends GetxController{
+  RxBool isOptionSelected=false.obs;
+  RxBool isFromCloud = false.obs;
   RxString countDownTime=''.obs;
   RxString clockBtnText="Start clock in".obs;
   RxBool shouldGoForward=false.obs;
