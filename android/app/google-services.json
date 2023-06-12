@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "937888834443",
+    "firebase_url": "https://scaleupprojecttracker-default-rtdb.firebaseio.com",
     "project_id": "scaleupprojecttracker",
     "storage_bucket": "scaleupprojecttracker.appspot.com"
   },
@@ -22,7 +23,7 @@
           }
         },
         {
-          "client_id": "937888834443-5qqq4teqiom84rvalsn0clhhncjm5iv0.apps.googleusercontent.com",
+          "client_id": "937888834443-lu9l2bg6uknucgrs5c87j073fn5bq2uu.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -37,6 +38,13 @@
             {
               "client_id": "937888834443-5qqq4teqiom84rvalsn0clhhncjm5iv0.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "937888834443-4uj71umnnh5cq568l5rub29jgs73v7hc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.scaleup.cloudtracker"
+              }
             }
           ]
         }
