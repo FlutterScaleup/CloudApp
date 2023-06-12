@@ -23,7 +23,6 @@ const credential = r'''
 }
 ''';
 
-
 const credentialBI = r''' 
   {
   "type": "service_account",
@@ -49,35 +48,35 @@ var spreadSheetBI;
 
 late SharedPreferences sharedPreference;
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  sharedPreference = await SharedPreferences.getInstance();
-  print(sharedPreference.get("verified"));
-  final gsheets = GSheets(credential);
-  final gsheetsBI = GSheets(credentialBI);
-  spreadSheet = await gsheets.spreadsheet(spreadSheetId);
-  spreadSheetBI = await gsheetsBI.spreadsheet(spreadSheetIdBI);
+  // WidgetsFlutterBinding.ensureInitialized();
+  // sharedPreference = await SharedPreferences.getInstance();
+  // print(sharedPreference.get("verified"));
+  // final gsheets = GSheets(credential);
+  // final gsheetsBI = GSheets(credentialBI);
+  // spreadSheet = await gsheets.spreadsheet(spreadSheetId);
+  // spreadSheetBI = await gsheetsBI.spreadsheet(spreadSheetIdBI);
 
-  await Firebase.initializeApp();
-  await FirebaseMessaging.instance.requestPermission(
-      sound: true,
-      badge: true,
-      alert: true,
-      criticalAlert: true,
-      announcement: true);
+  // await Firebase.initializeApp();
+  // await FirebaseMessaging.instance.requestPermission(
+  //     sound: true,
+  //     badge: true,
+  //     alert: true,
+  //     criticalAlert: true,
+  //     announcement: true);
 
-  FirebaseMessaging.onMessage.listen((event) async {
-    print("event ${event.data}");
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin.initialize(InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher')));
-    flutterLocalNotificationsPlugin.show(
-        1,
-        event.data['title'] + "listen",
-        event.data['body'],
-        NotificationDetails(android: AndroidNotificationDetails("1", "sad")));
-  });
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onMessage.listen((event) async {
+  //   print("event ${event.data}");
+  //   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  //       FlutterLocalNotificationsPlugin();
+  //   await flutterLocalNotificationsPlugin.initialize(InitializationSettings(
+  //       android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+  //   flutterLocalNotificationsPlugin.show(
+  //       1,
+  //       event.data['title'] + "listen",
+  //       event.data['body'],
+  //       NotificationDetails(android: AndroidNotificationDetails("1", "sad")));
+  // });
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
 }
