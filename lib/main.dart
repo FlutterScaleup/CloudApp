@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +23,6 @@ const credential = r'''
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/flutter-gsheets%40myspreadsheet-381908.iam.gserviceaccount.com"
 }
 ''';
-
-
 const credentialBI = r''' 
   {
   "type": "service_account",
@@ -51,20 +50,27 @@ late SharedPreferences sharedPreference;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   sharedPreference = await SharedPreferences.getInstance();
-  print(sharedPreference.get("verified"));
+
   final gsheets = GSheets(credential);
   final gsheetsBI = GSheets(credentialBI);
   spreadSheet = await gsheets.spreadsheet(spreadSheetId);
   spreadSheetBI = await gsheetsBI.spreadsheet(spreadSheetIdBI);
-  await Firebase.initializeApp();
+
+  await Firebase.initializeApp(
+      // name: "Scaleupally",
+      // options: DefaultFirebaseOptions.currentPlatform,
+      );
   await FirebaseMessaging.instance.requestPermission(
       sound: true,
       badge: true,
       alert: true,
       criticalAlert: true,
       announcement: true);
+  var token = await FirebaseMessaging.instance.getToken();
+  print("token $token");
   FirebaseMessaging.onMessage.listen((event) async {
     print("event ${event.data}");
+    print(jsonEncode(event.notification));
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.initialize(const InitializationSettings(

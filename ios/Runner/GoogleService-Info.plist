@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>937888834443-j477ocbfvrj1n6eqcggo47degjig9por.apps.googleusercontent.com</string>
+	<string>937888834443-4uj71umnnh5cq568l5rub29jgs73v7hc.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.937888834443-j477ocbfvrj1n6eqcggo47degjig9por</string>
+	<string>com.googleusercontent.apps.937888834443-4uj71umnnh5cq568l5rub29jgs73v7hc</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>937888834443-iikj8j3a1ml7p4i2g6ru1mnd4dqsvpdg.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.scaleup.cloudtrackerapp</string>
+	<string>com.scaleup.cloudtracker</string>
 	<key>PROJECT_ID</key>
 	<string>scaleupprojecttracker</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:937888834443:ios:4636a4f4d908fb76dc058e</string>
+	<string>1:937888834443:ios:3a2f176448a70a6cdc058e</string>
 	<key>DATABASE_URL</key>
 	<string>https://scaleupprojecttracker-default-rtdb.firebaseio.com</string>
 </dict>
