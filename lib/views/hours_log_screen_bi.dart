@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +27,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   String selectedReportValue = "Report Name";
   List<SelectedListItem> selectedTaskList = [];
   String selectedTaskValue = "Category of Task";
-    String selectedStatustValue = "Status of Task";
-
+  String selectedStatustValue = "Status of Task";
+  List<SelectedListItem> selectedStatusList = [];
   List<SelectedListItem> selectedSubTaskList = [];
   String selectedSubTaskValue = "Sub Category of Task";
   List<SelectedListItem> selectedHourList = [];
@@ -66,6 +68,41 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     var justNow = DateTime.now();
     now = DateFormat('dd-MMMM-yyyy').format(justNow);
     getdata();
+  }
+
+  getdatass() async {
+    Worksheet sheet = spreadSheetBI.worksheetByTitle("Sheet1");
+    var allRow = await sheet.values.allRows();
+    log(allRow.last.toString());
+    // final cell = await sheet.cells.cell(column: 2, row:12);
+    // log(cell.value.toString());
+
+    // get first row as List of Cell objects
+    // final cellsRow = await sheet.cells.row(7);
+    // print(cellsRow);
+    // update each cell's value by adding char '_' at the beginning
+    // cellsRow.forEach((cell) => cell.value = '_${cell.value}');
+    // actually updating sheets cells
+    // await sheet.cells.insert(cellsRow);
+    // prints [_index, _letter, _number, _label]
+    // print(await sheet.values.row(7));
+    // print(await sheet.values.map.columnByKey('Name', mapTo: 'Date'));
+    // print(await sheet.values.insertRow(1, [
+    //   "Name",
+    //   "Date",
+    //   "Project",
+    //   "Report Name",
+    //   "Category of Task",
+    //   "Sub Category of Task",
+    //   "Start Time",
+    //   "End Time",
+    // ]));
+
+
+
+    // sheet.values.allRows().then((value) {
+    //   log(value.toString());
+    // });
   }
 
   getDataFromHive() async {
@@ -110,6 +147,11 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     for (String x in itemsTask) {
       selectedTaskList.add(SelectedListItem(name: x));
     }
+    selectedStatusList.addAll([
+      SelectedListItem(name: "Completed"),
+      SelectedListItem(name: "In Progress"),
+      SelectedListItem(name: "On Hold"),
+    ]);
     isLoading.value = false;
     setState(() {});
   }
@@ -117,6 +159,14 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   getInitialData() async {
     try {
       isLoading.value = true;
+
+      selectedMemberList = [];
+      selectedProjectList = [];
+      selectedReportList = [];
+      selectedTaskList = [];
+      selectedStatusList = [];
+      selectedSubTaskList = [];
+      selectedHourList = [];
 
       var member = await sharedPreference.get("member");
       if (member != null) {
@@ -170,6 +220,11 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
       for (String x in itemsTask) {
         selectedTaskList.add(SelectedListItem(name: x));
       }
+      selectedStatusList.addAll([
+        SelectedListItem(name: "Completed"),
+        SelectedListItem(name: "In Progress"),
+        SelectedListItem(name: "On Hold"),
+      ]);
       await sharedPreference.setBool("saveDataToBI", true);
     } catch (e) {
       Fluttertoast.showToast(msg: "Something went wrong");
@@ -200,6 +255,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
           list[i]['project'],
           list[i]['report'],
           list[i]['desc'],
+          list[i]['status'],
         ]);
       }
       list = [];
@@ -308,7 +364,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
       "desc": textEditingController.text,
       "start": selectedTime,
       "end": selectedEndTime,
-      "durationTime": selectedDuration
+      "durationTime": selectedDuration,
+      "status": selectedStatustValue,
     });
 
     textEditingController.text = '';
@@ -318,6 +375,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     selectedSubTaskValue = "Sub Category of Task";
     selectedHourValue.value = "Start Time";
     selectedEndHourValue.value = "End Time";
+    selectedStatustValue = "Status of Task";
     selectedTime = TimeOfDay.now();
     selectedEndTime = TimeOfDay.now();
     setState(() {});
@@ -344,13 +402,18 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
               onPressed: () async {
                 await getInitialData();
               },
-              icon: Icon(Icons.replay_outlined))
+              icon: Icon(Icons.replay_outlined)),
+          IconButton(
+              onPressed: () async {
+                await getdatass();
+              },
+              icon: Icon(Icons.account_balance_outlined))
         ],
-        title:
-            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(widget.title,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Obx(() => isLoading.value == true
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(
               color: Colors.red,
             ))
@@ -726,34 +789,46 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                     // ),
 
                     ,
-                       SizedBox(
+                    SizedBox(
                       height: 16,
                     ),
-                   Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: selectedStatustValue == "Status of Task"
-                                    ? Colors.grey[200]
-                                    : Colors.blueGrey[200],
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    selectedStatustValue,
-                                    style: TextStyle(color: Colors.black),
-                                    textAlign: TextAlign.center,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              showStatus();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color:
+                                      selectedStatustValue == "Status of Task"
+                                          ? Colors.grey[200]
+                                          : Colors.blueGrey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      selectedStatustValue,
+                                      style: TextStyle(color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
-                                ),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black,
-                                )
-                              ],
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  )
+                                ],
+                              ),
                             ),
                           ),
+                        ),
+                      ],
+                    ),
                     SizedBox(
                       height: 16,
                     ),
@@ -840,27 +915,30 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                         });
 
                         return GestureDetector(
-                          onLongPress: () {
-                            // edit list
-                            setState(() {
-                              textEditingController.text = list[index]['desc'];
-                              selectedHourValue.value =
-                                  list[index]['start Time'];
-                              selectedEndTime = list[index]['end'];
-                              selectedTime = list[index]['start'];
-                              selectedEndHourValue.value =
-                                  list[index]['end Time'];
-                              selectedProjectValue = list[index]['project'];
-                              now = list[index]['date'];
-                              selectedMemberValue = list[index]['member'];
-                              selectedReportValue = list[index]['report'];
-                              selectedTaskValue = list[index]['task type'];
-                              list.removeAt(index);
-                            });
-                          },
+                          // onLongPress: () {
+                          //   // edit list
+                          //   setState(() {
+                          //     textEditingController.text = list[index]['desc'];
+                          //     selectedHourValue.value =
+                          //         list[index]['start Time'];
+                          //     selectedEndTime = list[index]['end'];
+                          //     selectedTime = list[index]['start'];
+                          //     selectedEndHourValue.value =
+                          //         list[index]['end Time'];
+                          //     selectedProjectValue = list[index]['project'];
+                          //     now = list[index]['date'];
+                          //     selectedMemberValue = list[index]['member'];
+                          //     selectedReportValue = list[index]['report'];
+                          //     selectedTaskValue = list[index]['task type'];
+                          //     list.removeAt(index);
+                          //   });
+                          // },
                           child: Card(
                             child: ListTile(
-                                title: Text(list[index]['project']),
+                                title: Text(
+                                  list[index]['project'],
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -888,7 +966,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                                       ],
                                     ),
                                     Text(
-                                        "Duration : ${list[index]['duration']}"),
+                                        "Duration: ${list[index]['duration']}"),
+                                    Text("Status: ${list[index]['status']}"),
                                     Text(list[index]['report']),
                                     Text(list[index]['task type']),
                                     Text(list[index]['desc'],
@@ -905,18 +984,24 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                                           onTap: () {
                                             textEditingController.text =
                                                 list[index]['desc'];
-
+                                            selectedHourValue.value =
+                                                list[index]['start Time'];
+                                            selectedEndTime =
+                                                list[index]['end'];
+                                            selectedTime = list[index]['start'];
+                                            selectedEndHourValue.value =
+                                                list[index]['end Time'];
                                             selectedProjectValue =
                                                 list[index]['project'];
                                             now = list[index]['date'];
                                             selectedMemberValue =
                                                 list[index]['member'];
+                                            selectedReportValue =
+                                                list[index]['report'];
                                             selectedTaskValue =
-                                                list[index]['task'];
-                                            selectedSubTaskValue =
-                                                list[index]['subTask'];
-                                            selectedHourValue =
-                                                list[index]['hour'];
+                                                list[index]['task type'];
+                                            selectedStatustValue =
+                                                list[index]['status'];
                                             list.removeAt(index);
                                             setState(() {});
                                           },
@@ -984,7 +1069,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                                           color: Colors.blueAccent,
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      child: Row(
+                                      child:  Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Padding(
@@ -1075,6 +1160,42 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
           }
           print(list);
           selectedProjectValue = list.first;
+          setState(() {});
+          // showSnackBar(list.toString());
+        },
+        enableMultipleSelection: false,
+      ),
+    ).showModal(context);
+  }
+
+  showStatus() {
+    DropDownState(
+      DropDown(
+        bottomSheetTitle: Text(
+          'Select Status',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.0,
+          ),
+        ),
+        submitButtonChild: const Text(
+          'Done',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        data: selectedStatusList,
+        // data: widget.cities ?? [],
+        selectedItems: (List<dynamic> selectedList) {
+          List<String> list = [];
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
+              list.add(item.name);
+            }
+          }
+          print(list);
+          selectedStatustValue = list.first;
           setState(() {});
           // showSnackBar(list.toString());
         },

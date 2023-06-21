@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gsheet/alarm_class.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
 import 'kredily_clock.dart';
@@ -22,6 +23,9 @@ class _AdminPageState extends State<AdminPage> {
   var memberList = [];
   List<String> emailList = [];
 
+  RxBool isLoading = false.obs;
+  DateTime dateTime = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +33,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   fetchData() async {
+    isLoading.value = true;
     Worksheet sheet = spreadSheet.worksheetByTitle("Data Sheet");
     memberList = (await sheet.values.columnByKey("Team Member Name"))!;
     var statusList = (await sheet.values.columnByKey("Current Status"))!;
@@ -56,52 +61,81 @@ class _AdminPageState extends State<AdminPage> {
     memberList.removeAt(indd);
     emailList.removeAt(indd);
 
-    print('AFTERRRR ${memberList.length}');
-    print('AFTERRRR ${emailList.length}');
+    print('admin AFTERRRR ${memberList.length}');
+    print('admin AFTERRRR ${emailList.length}');
 
     // print(memberList);
     // print(emailList);
 
     Worksheet sheet2 = spreadSheet.worksheetByTitle("Hours Log");
-    var allRow = await sheet2.values.allRows();
+    var allRow = await sheet2.values.allRows(fromRow: 10000);
 
     if (allRow.isEmpty) return;
     if (allRow[allRow.length - 1][0].isEmpty) return;
-    const gsDateBase = 2209161600 / 86400;
-    const gsDateFactor = 86400000;
+    // const gsDateBase = 2209161600 / 86400;
+    // const gsDateFactor = 86400000;
 
-    final date = double.tryParse(allRow[allRow.length - 1][0]);
-    if (date == null) return null;
-    final millis = (date - gsDateBase) * gsDateFactor;
-    DateTime dateTimeGet =
-        DateTime.fromMillisecondsSinceEpoch(millis.toInt(), isUtc: true);
-    String formattedDateTime = DateFormat('dd-MM-yyyy').format(dateTimeGet);
-    String formattedNow = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    if (formattedDateTime == formattedNow) {
-      List newList = allRow
-          .where((element) => element[0] == allRow[allRow.length - 1][0])
-          .map((e) => e[1])
-          .toList();
-      // memberList.removeWhere((e) => newList.contains(e));
-      List indexList = [];
-      for (int i = 0; i < memberList.length; i++) {
-        if (newList.contains(memberList[i])) {
-          indexList.add(i);
-        }
-      }
-      for (int x = indexList.length; x > 0; x--) {
-        print("INDEXXXXXXXXXX $x");
-        memberList.removeAt(x);
-        emailList.removeAt(x);
+    // final date = double.tryParse(allRow[allRow.length - 1][0]);
+    // if (date == null) return null;
+    // final millis = (date - gsDateBase) * gsDateFactor;
+    // DateTime dateTimeGet =
+    //     DateTime.fromMillisecondsSinceEpoch(millis.toInt(), isUtc: true);
+    // String formattedDateTime = DateFormat('dd-MM-yyyy').format(dateTimeGet);
+    String formattedNow = DateFormat('dd-MM-yyyy').format(dateTime);
+
+    for (int i = 0; i < allRow.length; i++) {
+      // print(allRow[i][0]);
+      final serializedDate = int.tryParse(allRow[i][0]);
+      if (serializedDate != null) {
+        print('serializedDate:$serializedDate');
+        final DateTime baseDate = DateTime(1900, 1, 1);
+        final DateTime properDate =
+            baseDate.add(Duration(days: serializedDate - 1));
+        print('serializedDate pro:$properDate');
+        // print(properDate);
+        allRow[i][0] = DateFormat('dd-MM-yyyy').format(properDate);
+        print('admin last ${allRow[i][0]}');
       }
     }
-    setState(() {});
-    // print("LIAAAAAAAAAAA ${memberList.length}");
-    // print("LIAAAAAAAAAAA!!@@@ ${emailList.length}");
+
+    for (int i = 0; i < allRow.length; i++) {
+
+      if (allRow[i][0] == formattedNow) {
+        // print("admin LIAAAAAAAAAAA ${allRow[i][0]}");
+        print("admin name ${allRow[i][1]}");
+        // print("admin date ${allRow[i][0]}");
+        // print("admin desc ${allRow[i][5]}");
+        // print('memberList before:${memberList.length}');
+        //
+        print('memberList before:${memberList.length}');
+        memberList.removeWhere((element) => element == allRow[i][1]);
+        // memberList.where((element) {
+        //  print('memberList after:${element}');
+          // print('memberList nameee:${allRow[i][1]}');
+          // return true;
+        // }) .map((e) => e[1])
+        //     .toList();
+        print('memberList after:${memberList.length}');
+      }}
+
+
+    //   if ( allRow[i][0] == formattedNow) {
+
+    // }
+
+    // String formattedNow = DateFormat('dd-MM-yyyy').format(dateTime);
+
+    isLoading.value = false;
+    setState(() {
+
+      print('memberList:${memberList.length}');
+
+    });
+    // print("admin LIAAAAAAAAAAA ${memberList.length}");
+    // print("admin LIAAAAAAAAAAA!!@@@ ${emailList.length}");
   }
 
-
-fetchDataBI() async {
+  fetchDataBI() async {
     Worksheet sheet = spreadSheetBI.worksheetByTitle("Sheet6");
     memberList = (await sheet.values.columnByKey("Name"))!;
 
@@ -131,8 +165,8 @@ fetchDataBI() async {
     memberList.removeAt(indd);
     emailList.removeAt(indd);
 
-    print('AFTERRRR ${memberList.length}');
-    print('AFTERRRR ${emailList.length}');
+    print('admin AFTERRRR ${memberList.length}');
+    print('admin AFTERRRR ${emailList.length}');
 
     // print(memberList);
     // print(emailList);
@@ -165,25 +199,22 @@ fetchDataBI() async {
         }
       }
       for (int x = indexList.length; x > 0; x--) {
-        print("INDEXXXXXXXXXX $x");
+        print("admin INDEXXXXXXXXXX $x");
         memberList.removeAt(x);
         emailList.removeAt(x);
       }
     }
     setState(() {});
-    // print("LIAAAAAAAAAAA ${memberList.length}");
-    // print("LIAAAAAAAAAAA!!@@@ ${emailList.length}");
+    // print("admin LIAAAAAAAAAAA ${memberList.length}");
+    // print("admin LIAAAAAAAAAAA!!@@@ ${emailList.length}");
   }
-
-
-
 
   sendMess() async {
     if (value1 == false && value2 == false) {
       Fluttertoast.showToast(msg: "Select one option");
       return;
     }
-    var title, body;
+    String title, body;
     if (value1) {
       title = KredilyClock.taskTitleString;
       body = KredilyClock.taskBodyString;
@@ -219,8 +250,8 @@ fetchDataBI() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text("Admin Space", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text("Admin Space",
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -238,13 +269,13 @@ fetchDataBI() async {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 sharedPreference.get("alarm") != null
-                    ? SizedBox()
-                    : Text(
+                    ? const SizedBox()
+                    : const Text(
                         "Alarm will be set on 11AM for TaskList, 7:30PM for Hour Logs and 11PM for remaining member hour logs",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                 sharedPreference.get("alarm") != null
-                    ? SizedBox()
-                    : SizedBox(
+                    ? const SizedBox()
+                    : const SizedBox(
                         height: 8,
                       ),
                 // sharedPreference.get("alarm")!=null?SizedBox():
@@ -260,11 +291,11 @@ fetchDataBI() async {
                         decoration: BoxDecoration(
                             color: Colors.blueAccent,
                             borderRadius: BorderRadius.circular(10)),
-                        child: Row(
+                        child:  Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: EdgeInsets.all(16.0),
                               child: Text(
                                 "Use alarm manager",
                                 style: TextStyle(
@@ -281,8 +312,8 @@ fetchDataBI() async {
                 ),
 
                 sharedPreference.get("alarm") != null
-                    ? SizedBox()
-                    : SizedBox(
+                    ? const SizedBox()
+                    : const SizedBox(
                         height: 24,
                       ),
                 Row(
@@ -294,7 +325,7 @@ fetchDataBI() async {
                           value2 = false;
                           setState(() {});
                         }),
-                    Text("TaskList message")
+                    const Text("TaskList message")
                   ],
                 ),
                 Row(
@@ -306,7 +337,7 @@ fetchDataBI() async {
                           value1 = false;
                           setState(() {});
                         }),
-                    Text("Hour logs message")
+                    const Text("Hour logs message")
                   ],
                 ),
                 Row(
@@ -317,11 +348,11 @@ fetchDataBI() async {
                               sendMess();
                             },
                             child: Container(
-                              padding: EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                   color: Colors.blueAccent,
                                   borderRadius: BorderRadius.circular(10)),
-                              child: Text("Send Message",
+                              child: const Text("Send Message",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold),
@@ -329,22 +360,63 @@ fetchDataBI() async {
                             )))
                   ],
                 ),
-                SizedBox(
+
+                ////////////////////////
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ///
+                ////////////////////////
+                const SizedBox(
                   height: 50,
                 ),
-                Text(memberList.isEmpty ? '' : 'Remaining hour logs members',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
-                SizedBox(
-                  height: 16,
-                ),
                 Text(
-                    memberList.isEmpty ? '' : memberList.join(", ").toString()),
-                SizedBox(
+                    memberList.isEmpty
+                        ? ''
+                        : 'Remaining logs for ${DateFormat('dd-MM-yyyy').format(dateTime)} ${memberList.length}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 22)),
+
+                TextButton(
+                    onPressed: () {
+                      showDatePicker(
+                              context: context,
+                              initialDate: dateTime,
+                              firstDate: DateTime(2021),
+                              lastDate: DateTime.now())
+                          .then((value) {
+                        if (value != null) {
+                          setState(() {
+                            dateTime = value;
+                            fetchData();
+                          });
+                        }
+                      });
+                    },
+                    child: Text("Change Date")),
+                isLoading.value
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : Text(memberList.isEmpty
+                        ? ''
+                        : memberList.join(", ").toString()),
+                const SizedBox(
                   height: 16,
                 ),
-                memberList.isEmpty
-                    ? SizedBox()
+
+                memberList.isEmpty || isLoading.value
+                    ? const SizedBox()
                     : Row(
                         children: [
                           Expanded(
@@ -354,12 +426,13 @@ fetchDataBI() async {
                                     // fetchData();
                                   },
                                   child: Container(
-                                    padding: EdgeInsets.all(16),
+                                    padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
                                         color: Colors.blueAccent,
                                         borderRadius:
                                             BorderRadius.circular(10)),
-                                    child: Text("Send Message to everyone",
+                                    child: const Text(
+                                        "Send Message to everyone",
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),

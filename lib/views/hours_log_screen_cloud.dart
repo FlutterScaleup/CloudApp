@@ -27,7 +27,14 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   String selectedSubTaskValue = "Sub Category of Task";
   List<SelectedListItem> selectedHourList = [];
   String selectedHourValue = "Time (in hrs)";
+  List<SelectedListItem> selectedStatusList = [];
+  String selectedStatusValue = "Status of Task";
+
   TextEditingController textEditingController = TextEditingController();
+  TextEditingController workDoneEditingController = TextEditingController();
+
+  TextEditingController workPendingEditingController = TextEditingController();
+
   // late SharedPreferences sharedPrefrence;
   RxBool isLoading = false.obs;
   List list = [];
@@ -41,7 +48,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   var dataSaved;
 
   getdata() async {
-    var dataSaved = await sharedPreference.get("saveData") ?? false;
+    var dataSaved = sharedPreference.get("saveData") ?? false;
     if (dataSaved == true) {
       getDataFromHive();
     } else {
@@ -52,8 +59,26 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   @override
   void initState() {
     super.initState();
+
     var justNow = DateTime.now();
     now = DateFormat('dd-MMMM-yyyy').format(justNow);
+    var member = sharedPreference.get("member");
+    print("Memberrrr $member");
+    if (member != null) {
+      selectedMemberValue = member.toString();
+    }
+    list.add({
+      "date": now,
+      "member": selectedMemberValue,
+      "project": "No Project",
+      "task": "Leisure tasks",
+      "subTask": "Lunch & Tea break",
+      "desc": "Lunch Break",
+      "hour": "1",
+      "status": "",
+      "workDone": "",
+      "workPending": "",
+    });
     getdata();
   }
 
@@ -75,17 +100,16 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
     if (member != null) {
       selectedMemberValue = member.toString();
     }
-    var itemsMember = await sharedPreference.getStringList("memberList");
-    var itemsProject = await sharedPreference.getStringList("projectList");
-    var itemsTask = await sharedPreference.getStringList("taskList");
-    var itemsHours = await sharedPreference.getStringList("hourList");
+    var itemsMember = sharedPreference.getStringList("memberList");
+    var itemsProject = sharedPreference.getStringList("projectList");
+    var itemsTask = sharedPreference.getStringList("taskList");
+    var itemsHours = sharedPreference.getStringList("hourList");
 
-    coreTasKIDList = await sharedPreference.getStringList("coreTasKIDList");
-    helpTasKIDList = await sharedPreference.getStringList("helpTasKIDList");
-    rnDTaskIDList = await sharedPreference.getStringList("rnDTaskIDList");
-    otherTaskIDList = await sharedPreference.getStringList("otherTaskIDList");
-    leisureTaskIDList =
-        await sharedPreference.getStringList("leisureTaskIDList");
+    coreTasKIDList = sharedPreference.getStringList("coreTasKIDList");
+    helpTasKIDList = sharedPreference.getStringList("helpTasKIDList");
+    rnDTaskIDList = sharedPreference.getStringList("rnDTaskIDList");
+    otherTaskIDList = sharedPreference.getStringList("otherTaskIDList");
+    leisureTaskIDList = sharedPreference.getStringList("leisureTaskIDList");
 
     if (selectedMemberValue == "Member Name") {
       var emailList = sharedPreference.getStringList("emailList");
@@ -111,12 +135,23 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
     for (String x in itemsHours!) {
       selectedHourList.add(SelectedListItem(name: x));
     }
+    selectedStatusList.addAll([
+      SelectedListItem(name: "Completed"),
+      SelectedListItem(name: "In Progress"),
+    ]);
     isLoading.value = false;
     setState(() {});
   }
 
   getInitialData() async {
     isLoading.value = true;
+
+    selectedMemberList = [];
+    selectedProjectList = [];
+    selectedTaskList = [];
+    selectedHourList = [];
+    selectedStatusList = [];
+
     // sharedPrefrence = await SharedPreferences.getInstance();
     var member = sharedPreference.get("member");
     print("Memberrrr $member");
@@ -172,6 +207,10 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
     for (String x in itemsHours) {
       selectedHourList.add(SelectedListItem(name: x));
     }
+    selectedStatusList.addAll([
+      SelectedListItem(name: "Completed"),
+      SelectedListItem(name: "In Progress"),
+    ]);
     sharedPreference.setBool("saveData", true);
     isLoading.value = false;
     setState(() {});
@@ -197,19 +236,25 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
         list[i]['task'],
         list[i]['subTask'],
         list[i]['desc'],
-        list[i]['hour']
+        list[i]['hour'],
+        list[i]['status'],
+        list[i]['workPending'],
+        list[i]['workDone'],
+        list[i]['flag'],
       ]);
     }
     list = [];
     progress = false;
     setState(() {});
 
-    // textEditingController.text='';
-    // selectedProjectValue="Project Name";
-    // selectedTaskValue="Category of Task";
-    // selectedHourValue="Time (in hrs)";
-    // setState(() {
-    // });
+    textEditingController.text = '';
+    workPendingEditingController.text = '';
+    workDoneEditingController.text = '';
+    selectedStatusValue = "Status of Task";
+    selectedProjectValue = "Project Name";
+    selectedTaskValue = "Category of Task";
+    selectedSubTaskValue = "Sub Category of Task";
+    selectedHourValue = "Time (in hrs)";
     Fluttertoast.showToast(msg: "Hours Log Updated Successfully");
   }
 
@@ -238,7 +283,21 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
       Fluttertoast.showToast(msg: "Write Work description");
       return;
     }
-    // sheetWork();
+
+    if (selectedTaskValue == "Core Task") {
+      if (selectedStatusValue == "Status of Task") {
+        Fluttertoast.showToast(msg: "Select Status of Task");
+        return;
+      }
+      if (workDoneEditingController.text.isEmpty) {
+        Fluttertoast.showToast(msg: "Write Work Done description");
+        return;
+      }
+      if (workPendingEditingController.text.isEmpty) {
+        Fluttertoast.showToast(msg: "Write Work Pending description");
+        return;
+      }
+    }
     list.add({
       "date": now,
       "member": selectedMemberValue,
@@ -247,13 +306,26 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
       "subTask": selectedSubTaskValue,
       "desc": textEditingController.text,
       "hour": selectedHourValue,
+      "status": selectedTaskValue != "Core task" ? "" : selectedStatusValue,
+      "workDone": selectedTaskValue != "Core task"
+          ? ""
+          : workDoneEditingController.text,
+      "workPending": selectedTaskValue != "Core task"
+          ? ""
+          : workPendingEditingController.text,
+      "flag": now == DateFormat('dd-MMMM-yyyy').format(DateTime.now())
+          ? "Blue"
+          : "Red",
     });
 
     textEditingController.text = '';
+    workDoneEditingController.text = '';
+    workPendingEditingController.text = '';
     selectedProjectValue = "Project Name";
     selectedTaskValue = "Category of Task";
     selectedSubTaskValue = "Sub Category of Task";
     selectedHourValue = "Time (in hrs)";
+    selectedStatusValue = "Status of Task";
     setState(() {});
     Fluttertoast.showToast(msg: "Added to list");
   }
@@ -262,18 +334,18 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(widget.title,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
               onPressed: () async {
                 await getInitialData();
               },
-              icon: Icon(Icons.replay_outlined))
+              icon: const Icon(Icons.replay_outlined))
         ],
       ),
       body: Obx(() => isLoading.value == true
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(
               color: Colors.red,
             ))
@@ -290,19 +362,19 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                   showDate();
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                       color: Colors.blueGrey[200],
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Text(
-                                    '$now',
-                                    style: TextStyle(color: Colors.black),
+                                    now,
+                                    style: const TextStyle(color: Colors.black),
                                     textAlign: TextAlign.center,
                                   ),
                                 )))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     Row(
@@ -328,23 +400,23 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
                                     selectedMemberValue,
-                                    style: TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
                                 selectedMemberValue == "Member Name"
-                                    ? Icon(
+                                    ? const Icon(
                                         Icons.arrow_drop_down,
                                         color: Colors.black,
                                       )
-                                    : SizedBox()
+                                    : const SizedBox()
                               ],
                             ),
                           ),
                         ))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     Row(
@@ -370,12 +442,13 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                     width: Get.width * 0.7,
                                     child: Text(
                                       selectedProjectValue,
-                                      style: TextStyle(color: Colors.black),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.arrow_drop_down,
                                   color: Colors.black,
                                 )
@@ -385,7 +458,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                         ))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     Row(
@@ -411,12 +484,13 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                     width: Get.width * 0.7,
                                     child: Text(
                                       selectedTaskValue,
-                                      style: TextStyle(color: Colors.black),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.arrow_drop_down,
                                   color: Colors.black,
                                 )
@@ -426,7 +500,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                         ))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     Row(
@@ -458,13 +532,14 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                     width: Get.width * 0.7,
                                     child: Text(
                                       selectedSubTaskValue,
-                                      style: TextStyle(color: Colors.black),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.arrow_drop_down,
                                   color: Colors.black,
                                 )
@@ -474,9 +549,40 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                         ))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
+
+                    ///////////////////////////////
+                    ////////////////////////
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
+                    ///
                     Row(
                       children: [
                         Expanded(
@@ -498,11 +604,11 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
                                     selectedHourValue,
-                                    style: TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.arrow_drop_down,
                                   color: Colors.black,
                                 )
@@ -512,11 +618,104 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                         ))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
+                    Visibility(
+                      visible: selectedTaskValue == "Core task",
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: InkWell(
+                                onTap: () {
+                                  showStatus();
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: selectedStatusValue ==
+                                              "Status of Task"
+                                          ? Colors.grey[200]
+                                          : Colors.blueGrey[200],
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Text(
+                                          selectedStatusValue,
+                                          style: const TextStyle(
+                                              color: Colors.black),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_drop_down,
+                                        color: Colors.black,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ))
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          Visibility(
+                            visible: selectedStatusValue == "In Progress",
+                            child: Column(
+                              children: [
+                                Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 16, right: 16),
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: TextField(
+                                        controller: workDoneEditingController,
+                                        minLines: 4,
+                                        maxLines: 10,
+                                        decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: "Work Done",
+                                            hintStyle: TextStyle()),
+                                        style: const TextStyle())),
+                                const SizedBox(
+                                  height: 16,
+                                ),
+                                Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 16, right: 16),
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: TextField(
+                                        controller:
+                                            workPendingEditingController,
+                                        minLines: 4,
+                                        maxLines: 10,
+                                        decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: "Work Pending",
+                                            hintStyle: TextStyle()),
+                                        style: const TextStyle())),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                        ],
+                      ),
+                    ),
                     Container(
-                        padding: EdgeInsets.only(left: 16, right: 16),
+                        padding: const EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(10)),
@@ -524,12 +723,12 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                             controller: textEditingController,
                             minLines: 4,
                             maxLines: 10,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                                 border: InputBorder.none,
                                 hintText: "Work description",
                                 hintStyle: TextStyle()),
-                            style: TextStyle())),
-                    SizedBox(
+                            style: const TextStyle())),
+                    const SizedBox(
                       height: 16,
                     ),
                     Row(
@@ -544,11 +743,11 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                             decoration: BoxDecoration(
                                 color: Colors.blueAccent,
                                 borderRadius: BorderRadius.circular(10)),
-                            child: Row(
+                            child:  Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(16.0),
+                                  padding: EdgeInsets.all(16.0),
                                   child: Text(
                                     "ADD",
                                     style: TextStyle(
@@ -563,7 +762,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                         ))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
 
@@ -574,21 +773,23 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                               () {
                                 return totalHours.value;
                               }(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 17),
                             ))
                         : Container(),
                     ListView.builder(
+                      reverse: true,
                       itemCount: list.length,
                       shrinkWrap: true,
                       primary: false,
                       itemBuilder: (itemBuilder, index) {
-                        Future.delayed(Duration(seconds: 1), () {
-                          totalHours.value = "Total Hours: " +
-                              list
-                                  .map((e) => double.parse(e['hour']))
-                                  .reduce((value, element) => value + element)
-                                  .toString();
+                        print(list[index]['date']);
+                        print(
+                            DateFormat('dd-MMMM-yyyy').format(DateTime.now()));
+
+                        Future.delayed(const Duration(seconds: 1), () {
+                          totalHours.value =
+                              "Total Hours: ${list.map((e) => double.parse(e['hour'])).reduce((value, element) => value + element)}";
                         });
                         return GestureDetector(
                           onLongPress: () {
@@ -606,14 +807,18 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                           },
                           child: Card(
                             child: ListTile(
-                                title: Text(list[index]['project']),
+                                title: Text(
+                                  list[index]['project'],
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600),
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         Text(list[index]['date']),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 16,
                                         ),
                                         Text(list[index]['hour'] + "hrs"),
@@ -623,20 +828,99 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                     ),
                                     Text(list[index]['task']),
                                     Text(list[index]['subTask']),
+                                    Visibility(
+                                      visible:
+                                          list[index]['task'] == "Core task",
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                                text: "Status: ",
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black),
+                                                children: [
+                                                  TextSpan(
+                                                      text: list[index]
+                                                          ['status'],
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w400)),
+                                                ]),
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          RichText(
+                                            text: TextSpan(
+                                                text: "Work Pending: ",
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black),
+                                                children: [
+                                                  TextSpan(
+                                                      text: list[index]
+                                                          ['workDone'],
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w400)),
+                                                ]),
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          RichText(
+                                            text: TextSpan(
+                                                text: "Work Done: ",
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black),
+                                                children: [
+                                                  TextSpan(
+                                                      text: list[index]
+                                                          ['workDone'],
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w400)),
+                                                ]),
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     Text(list[index]['desc'],
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500)),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w400)),
                                   ],
                                 ),
-                                trailing: Container(
-                                  width: 65,
+                                trailing: SizedBox(
+                                  width: Get.width * 0.25,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      list[index]['date'] !=
+                                              DateFormat('dd-MMMM-yyyy')
+                                                  .format(DateTime.now())
+                                          ? Icon(
+                                              Icons.flag,
+                                              color: Colors.red,
+                                            )
+                                          : Container(),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
                                       InkWell(
                                           onTap: () {
                                             textEditingController.text =
                                                 list[index]['desc'];
+                                            workDoneEditingController.text =
+                                                list[index]['workDone'];
+                                            workPendingEditingController.text =
+                                                list[index]['workPending'];
 
                                             selectedProjectValue =
                                                 list[index]['project'];
@@ -649,14 +933,17 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                                 list[index]['subTask'];
                                             selectedHourValue =
                                                 list[index]['hour'];
+                                            selectedStatusValue =
+                                                list[index]['status'];
+
                                             list.removeAt(index);
                                             setState(() {});
                                           },
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.edit,
                                             color: Colors.blue,
                                           )),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       InkWell(
@@ -664,7 +951,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                             list.removeAt(index);
                                             setState(() {});
                                           },
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.delete,
                                             color: Colors.red,
                                           )),
@@ -675,24 +962,24 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                         );
                       },
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     list.isEmpty
-                        ? SizedBox()
+                        ? const SizedBox()
                         : progress == true
                             ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                         color: Colors.red,
                                         borderRadius:
                                             BorderRadius.circular(30)),
                                     width: 50,
                                     height: 50,
-                                    child: CircularProgressIndicator(
+                                    child: const CircularProgressIndicator(
                                       color: Colors.white,
                                     ),
                                   )
@@ -713,11 +1000,11 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
                                           color: Colors.blueAccent,
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      child: Row(
+                                      child:  Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Padding(
-                                            padding: const EdgeInsets.all(16.0),
+                                            padding: EdgeInsets.all(16.0),
                                             child: Text(
                                               "SUBMIT",
                                               style: TextStyle(
@@ -742,7 +1029,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   showMember() {
     DropDownState(
       DropDown(
-        bottomSheetTitle: Text(
+        bottomSheetTitle: const Text(
           'Select Member',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -776,10 +1063,46 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
     ).showModal(context);
   }
 
-  showProject() {
+  showStatus() {
     DropDownState(
       DropDown(
         bottomSheetTitle: Text(
+          'Select Status',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.0,
+          ),
+        ),
+        submitButtonChild: const Text(
+          'Done',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        data: selectedStatusList,
+        // data: widget.cities ?? [],
+        selectedItems: (List<dynamic> selectedList) {
+          List<String> list = [];
+          for (var item in selectedList) {
+            if (item is SelectedListItem) {
+              list.add(item.name);
+            }
+          }
+          print(list);
+          selectedStatusValue = list.first;
+          setState(() {});
+          // showSnackBar(list.toString());
+        },
+        enableMultipleSelection: false,
+      ),
+    ).showModal(context);
+  }
+
+  showProject() {
+    DropDownState(
+      DropDown(
+        bottomSheetTitle: const Text(
           'Select Project',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -815,7 +1138,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   showTask() {
     DropDownState(
       DropDown(
-        bottomSheetTitle: Text(
+        bottomSheetTitle: const Text(
           'Select Category of Task',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -876,7 +1199,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   showSubTask() {
     DropDownState(
       DropDown(
-        bottomSheetTitle: Text(
+        bottomSheetTitle: const Text(
           'Select Sub Category of Task',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -912,7 +1235,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
   showHours() {
     DropDownState(
       DropDown(
-        bottomSheetTitle: Text(
+        bottomSheetTitle: const Text(
           'Time (in hours)',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -949,7 +1272,7 @@ class _MyHomePageState extends State<HoursLogScreenCloud> {
     var selectedDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
-        firstDate: DateTime.now().subtract(Duration(days: 365)),
+        firstDate: DateTime.now().subtract(const Duration(days: 365)),
         lastDate: DateTime.now());
     if (selectedDate != null) {
       now = DateFormat('dd-MMMM-yyyy').format(selectedDate);

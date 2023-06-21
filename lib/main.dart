@@ -56,7 +56,6 @@ Future<void> main() async {
   final gsheetsBI = GSheets(credentialBI);
   spreadSheet = await gsheets.spreadsheet(spreadSheetId);
   spreadSheetBI = await gsheetsBI.spreadsheet(spreadSheetIdBI);
-
   await Firebase.initializeApp();
   await FirebaseMessaging.instance.requestPermission(
       sound: true,
@@ -64,18 +63,17 @@ Future<void> main() async {
       alert: true,
       criticalAlert: true,
       announcement: true);
-
   FirebaseMessaging.onMessage.listen((event) async {
     print("event ${event.data}");
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin.initialize(InitializationSettings(
+    await flutterLocalNotificationsPlugin.initialize(const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher')));
     flutterLocalNotificationsPlugin.show(
         1,
         event.data['title'] + "listen",
         event.data['body'],
-        NotificationDetails(android: AndroidNotificationDetails("1", "sad")));
+        const NotificationDetails(android: AndroidNotificationDetails("1", "sad")));
   });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -99,7 +97,7 @@ class MyApp extends StatelessWidget {
 
       home: sharedPreference.get("verified") == null ||
               sharedPreference.getString("verified")!.isEmpty
-          ? OnboardScreen()
+          ? const OnboardScreen()
           : const HelloPage(),
       // home: sharedPreference.get("verified")==null || sharedPreference.getString("verified")!.isEmpty?OnboardScreen():const HelloPage(),
     );

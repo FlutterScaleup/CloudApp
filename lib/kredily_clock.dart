@@ -77,8 +77,8 @@ class KredilyClock{
             csrfToken = x.split("=")[1];
           }
         }
-        sharedPreference.setString("csrftoken", "$csrfToken");
-        sharedPreference.setString("sessionid", "$sessionId");
+        sharedPreference.setString("csrftoken", csrfToken);
+        sharedPreference.setString("sessionid", sessionId);
         getEmpDetails(csrfToken, sessionId);
       }catch(e){
         Fluttertoast.showToast(msg: "Error: ${response.body}");
@@ -89,7 +89,7 @@ class KredilyClock{
   }
   getEmpDetails(csrfToken,sessionId) async {
     var header={
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId'
     };
 
     var response=await http.get(Uri.parse("https://scaleupallyio.kredily.com/attendanceLog/clockingWidgetApi/"),headers: header);
@@ -104,7 +104,7 @@ class KredilyClock{
           FirebaseMessaging.instance.subscribeToTopic(KredilyClock.topicScaleupString);
           FirebaseMessaging.instance.subscribeToTopic(myController.textEditingControllerEmail.text.toLowerCase().replaceAll('@', '.'));
 
-          Get.off(()=> HelloPage());
+          Get.off(()=> const HelloPage());
         }
 
         print("inside");
@@ -150,7 +150,7 @@ class KredilyClock{
   setClockin(csrfToken,sessionId) async {
     var header={
       "X-CSRFToken":'$csrfToken',
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId'
     };
     var response=await http.post(Uri.parse("https://scaleupallyio.kredily.com/attendanceLog/clockIn/"),headers: header);
     print(response.statusCode);
@@ -161,7 +161,7 @@ class KredilyClock{
       myController.animatedWidth.value=null;
 
     }else{
-      Fluttertoast.showToast(msg: '${response.body}');
+      Fluttertoast.showToast(msg: response.body);
       myController.animatedWidth.value=null;
     }
     print(response.body);
@@ -169,7 +169,7 @@ class KredilyClock{
   setClockOut(csrfToken,sessionId) async {
     var header={
       "X-CSRFToken":'$csrfToken',
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId'
     };
     var response=await http.get(Uri.parse("https://scaleupallyio.kredily.com/attendanceLog/clockOut/"),headers: header);
     print(response.statusCode);
@@ -182,7 +182,7 @@ class KredilyClock{
 
       myController.animatedWidth.value=null;
     }else{
-      Fluttertoast.showToast(msg: '${response.body}');
+      Fluttertoast.showToast(msg: response.body);
       myController.animatedWidth.value=null;
     }
     print(response.body);
@@ -192,7 +192,7 @@ class KredilyClock{
       myController.timer!.cancel();
       myController.timer=null;
     }
-    myController.timer=Timer.periodic(Duration(seconds: 1), (timer) {
+    myController.timer=Timer.periodic(const Duration(seconds: 1), (timer) {
       var timex=DateTime.now().microsecondsSinceEpoch-locall;
       Duration duration=Duration(microseconds: int.parse('$timex'));
       myController.countDownTime.value='${(duration.inHours).toString().padLeft(2,'0')}:${(duration.inMinutes % 60).toString().padLeft(2,'0')}:${(duration.inSeconds % 60).toString().padLeft(2,'0')}';
@@ -202,7 +202,7 @@ class KredilyClock{
   getLeaveStatus(csrfToken,sessionId) async {
     var header={
       "X-CSRFToken":'$csrfToken',
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId'
     };
     try{
       var response=await http.get(Uri.parse('https://scaleupallyio.kredily.com/leave-request/leave_accrual_user/'),headers: header);
@@ -222,7 +222,7 @@ class KredilyClock{
   getLeaveLogs(csrfToken,sessionId,years) async {
     var header={
       "X-CSRFToken":'$csrfToken',
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}'
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId'
     };
     print(years);
     var response=await http.get(Uri.parse('https://scaleupallyio.kredily.com/leave-request/user_leave_log_datatable?year=$years'),headers: header);
@@ -234,13 +234,13 @@ class KredilyClock{
   cancelLeave(csrfToken,sessionId,leaveRequestUu) async {
     var header={
       "X-CSRFToken":'$csrfToken',
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}',
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId',
       'Content-Type': 'application/json'
     };
     var data=jsonEncode({
       "leave_request_uu":leaveRequestUu,
     });
-    var request=await http.Request("GET",Uri.parse('https://scaleupallyio.kredily.com/leave-request/cancelLeave/'));
+    var request=http.Request("GET",Uri.parse('https://scaleupallyio.kredily.com/leave-request/cancelLeave/'));
     request.body=data;
     request.headers.addAll(header);
     http.StreamedResponse response=await request.send();
@@ -268,7 +268,7 @@ class KredilyClock{
   applyLeave(csrfToken,sessionId,leaveType,startDate,startDaySession,endDate,endDaySession,reasonForLeave) async {
     var header={
       "X-CSRFToken":'$csrfToken',
-      'Cookie': 'csrftoken=${csrfToken}; sessionid=${sessionId}',
+      'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId',
       'Content-Type': 'application/json'
     };
     var data=jsonEncode({
@@ -335,7 +335,7 @@ class KredilyClock{
       "Content-Type":"application/json"
     };
     var message=jsonEncode({
-      'to': '/topics/${topic}', // Replace with the topic or device token you want to send the message to
+      'to': '/topics/$topic', // Replace with the topic or device token you want to send the message to
       'notification': {
         'title': '$title',
         'body': '$body'

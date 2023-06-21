@@ -3,7 +3,7 @@ import 'package:flutter_gsheet/login_page.dart';
 import 'package:flutter_gsheet/onBoard/AllinOnboardModel.dart';
 
 class OnboardScreen extends StatefulWidget {
-  OnboardScreen({Key? key}) : super(key: key);
+  const OnboardScreen({Key? key}) : super(key: key);
 
   @override
   State<OnboardScreen> createState() => _OnboardScreenState();
@@ -33,7 +33,7 @@ class _OnboardScreenState extends State<OnboardScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Scaleupally",
           style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
         ),
@@ -64,7 +64,7 @@ class _OnboardScreenState extends State<OnboardScreen> {
                   (index) => buildDot(index: index),
             ),
           ),
-          SizedBox(height: 16,),
+          const SizedBox(height: 16,),
 
           currentIndex < allinonboardlist.length - 1
               ? Row(
@@ -72,16 +72,16 @@ class _OnboardScreenState extends State<OnboardScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () {},
-                    child: Text(
-                      "Previous",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
                               topRight: Radius.circular(20.0),
                               bottomRight: Radius.circular(20.0))),
+                    ),
+                    child: const Text(
+                      "Previous",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
                   ElevatedButton(
@@ -90,16 +90,16 @@ class _OnboardScreenState extends State<OnboardScreen> {
                       currentIndex++;
                       pageController.jumpToPage(currentIndex);
                     },
-                    child: Text(
-                      "Next",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(20.0),
                               bottomLeft: Radius.circular(20.0))),
+                    ),
+                    child: const Text(
+                      "Next",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   )
                 ],
@@ -109,22 +109,22 @@ class _OnboardScreenState extends State<OnboardScreen> {
             children: [
               ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>LoginPage()));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>const LoginPage()));
                     },
-                    child: Text(
-                      "Get Started",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0)),
                     ),
+                    child: const Text(
+                      "Get Started",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
                   ),
             ],
           ),
 
-          SizedBox(height: 16,)
+          const SizedBox(height: 16,)
         ],
       ),
     );
@@ -132,12 +132,12 @@ class _OnboardScreenState extends State<OnboardScreen> {
 
   AnimatedContainer buildDot({int? index}) {
     return AnimatedContainer(
-      duration: Duration(milliseconds: 200),
-      margin: EdgeInsets.only(right: 5),
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.only(right: 5),
       height: 6,
       width: currentIndex == index ? 20 : 6,
       decoration: BoxDecoration(
-        color: currentIndex == index ? Colors.blueAccent : Color(0xFFD8D8D8),
+        color: currentIndex == index ? Colors.blueAccent : const Color(0xFFD8D8D8),
         borderRadius: BorderRadius.circular(3),
       ),
     );
@@ -171,7 +171,7 @@ class PageBuilderWidget extends StatelessWidget {
           ),
           //Tite Text
           Text(title,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.black,
                   fontSize: 24,
                   fontWeight: FontWeight.w700)),
@@ -181,7 +181,7 @@ class PageBuilderWidget extends StatelessWidget {
           //discription
           Text(description,
               textAlign: TextAlign.justify,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 14,
               ))

@@ -73,7 +73,7 @@ if(myController.isOptionSelected.value==false){
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text("Login", style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -81,7 +81,7 @@ if(myController.isOptionSelected.value==false){
           child: Row(
             children: [
               width < 600
-                  ? SizedBox()
+                  ? const SizedBox()
                   : Expanded(
                       flex: 2,
                       child: SvgPicture.asset(
@@ -100,26 +100,26 @@ if(myController.isOptionSelected.value==false){
                           padding: const EdgeInsets.all(16.0),
                           child: Image.asset("assets/scaleup.png", scale: 1.2),
                         )),
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
                     Container(
-                        padding: EdgeInsets.only(left: 16),
+                        padding: const EdgeInsets.only(left: 16),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: Colors.grey)),
                         child: TextField(
                           controller: myController.textEditingControllerEmail,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                               hintText: "Enter email",
                               border: InputBorder.none),
                         )),
-                    SizedBox(
+                    const SizedBox(
                       height: 16,
                     ),
                     Container(
-                        padding: EdgeInsets.only(left: 16),
+                        padding: const EdgeInsets.only(left: 16),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: Colors.grey)),
@@ -141,19 +141,19 @@ if(myController.isOptionSelected.value==false){
                                       ? Icons.visibility_off
                                       : Icons.visibility))),
                         )),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
 
                     // create radio 2 button
 
-                    RadioButtonsWidget(),
-                       SizedBox(
+                    const RadioButtonsWidget(),
+                       const SizedBox(
                       height: 10,
                     ),
                     
                     Obx(() => myController.loginLoading.value == true
-                        ? SizedBox()
+                        ? const SizedBox()
                         : Row(
                             children: [
                               Expanded(
@@ -162,17 +162,17 @@ if(myController.isOptionSelected.value==false){
                                   onSubmit();
                                 },
                                 child: AnimatedContainer(
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                   width: myController.animatedWidth.value,
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                       color: Colors.blueAccent,
                                       borderRadius: BorderRadius.circular(10)),
-                                  child: Row(
+                                  child:  Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Padding(
-                                          padding: const EdgeInsets.all(16.0),
+                                          padding: EdgeInsets.all(16.0),
                                           child: Text(
                                             "SUBMIT",
                                             style: TextStyle(
@@ -187,18 +187,18 @@ if(myController.isOptionSelected.value==false){
                             ],
                           )),
                     Obx(() => myController.loginLoading.value == false
-                        ? SizedBox()
+                        ? const SizedBox()
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                     color: Colors.red,
                                     borderRadius: BorderRadius.circular(30)),
                                 width: 50,
                                 height: 50,
-                                child: CircularProgressIndicator(
+                                child: const CircularProgressIndicator(
                                   color: Colors.white,
                                 ),
                               )
@@ -208,8 +208,8 @@ if(myController.isOptionSelected.value==false){
                 ),
               ),
               width < 600
-                  ? SizedBox()
-                  : SizedBox(
+                  ? const SizedBox()
+                  : const SizedBox(
                       width: 24,
                     )
             ],

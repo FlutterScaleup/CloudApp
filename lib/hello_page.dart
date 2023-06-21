@@ -129,18 +129,18 @@ class _HelloPageState extends State<HelloPage> {
         //   });
         // },),
         PopupMenuItem<String>(
-            child: const Text('Refresh'),
             value: 'Refresh',
             onTap: () {
               getInitialData();
-            }),
+            },
+            child: const Text('Refresh')),
         PopupMenuItem<String>(
-            child: const Text('Logout'),
             value: 'Logout',
             onTap: () {
               // Navigator.of(context).pop();
               _showLogoutDialog();
-            }),
+            },
+            child: const Text('Logout')),
       ],
       elevation: 8.0,
     );
@@ -149,24 +149,24 @@ class _HelloPageState extends State<HelloPage> {
   void _showLogoutDialog() async {
     print('showing dialog');
     Future.delayed(
-        Duration(seconds: 0),
+        const Duration(seconds: 0),
         () => showDialog(
             context: context,
             builder: (context) => AlertDialog(
                   title: const Text('Confirm'),
-                  content: Text("Do you want to Logout?"),
+                  content: const Text("Do you want to Logout?"),
                   actions: [
                     InkWell(
                         onTap: () {
                           Navigator.of(context).pop();
                         },
                         child: Container(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 16, right: 16),
                             decoration: BoxDecoration(
                                 color: Colors.red,
                                 borderRadius: BorderRadius.circular(10)),
-                            child: Text(
+                            child: const Text(
                               'No',
                               style: TextStyle(
                                   color: Colors.white,
@@ -185,6 +185,10 @@ class _HelloPageState extends State<HelloPage> {
                           sharedPreference.setString("verified", '');
                           sharedPreference.setString("email", '');
                           sharedPreference.setString("pass", '');
+                          sharedPreference.remove("isFromCloud");
+                          sharedPreference.remove("email");
+                          sharedPreference.remove("pass");
+                          myController.isOptionSelected.value = false;
                           // myController.isAdmin.value='';
                           // sharedPreference.setString("isAdmin",'');
                           // myController.isLoggedIn.value="notLoggedIn";
@@ -192,17 +196,17 @@ class _HelloPageState extends State<HelloPage> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (builder) => LoginPage()),
+                                builder: (builder) => const LoginPage()),
                             (route) => false,
                           );
                         },
                         child: Container(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 16, right: 16),
                             decoration: BoxDecoration(
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(10)),
-                            child: Text(
+                            child: const Text(
                               'Yes',
                               style: TextStyle(
                                   color: Colors.white,
@@ -217,21 +221,21 @@ class _HelloPageState extends State<HelloPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(
+        leading: const Icon(
           Icons.waving_hand_rounded,
           color: Colors.yellow,
         ),
         title: Text(
           "Hello, ${sharedPreference.get("email") != null ? sharedPreference.get("email").toString().split("@")[0].split(".")[0].capitalizeFirst : ''}",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
           GestureDetector(
               onTapDown: (TapDownDetails details) {
                 _showPopupMenu(details.globalPosition);
               },
-              child: Icon(Icons.more_vert_rounded)),
-          SizedBox(
+              child: const Icon(Icons.more_vert_rounded)),
+          const SizedBox(
             width: 16,
           )
         ],
@@ -252,7 +256,7 @@ class _HelloPageState extends State<HelloPage> {
                         elevation: 0,
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                               color: Colors.deepOrange[100],
                               borderRadius: BorderRadius.circular(16)),
@@ -278,7 +282,7 @@ class _HelloPageState extends State<HelloPage> {
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   SizedBox(
@@ -290,7 +294,7 @@ class _HelloPageState extends State<HelloPage> {
                                           color: Colors.deepOrangeAccent[200]),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   // Row(
@@ -383,7 +387,7 @@ class _HelloPageState extends State<HelloPage> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
                 Row(
@@ -393,7 +397,7 @@ class _HelloPageState extends State<HelloPage> {
                         elevation: 0,
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                               color: Colors.purple[100],
                               borderRadius: BorderRadius.circular(16)),
@@ -412,14 +416,14 @@ class _HelloPageState extends State<HelloPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Hour log update",
                                     style: TextStyle(
                                         color: Colors.purpleAccent,
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   SizedBox(
@@ -430,7 +434,7 @@ class _HelloPageState extends State<HelloPage> {
                                         style: TextStyle(
                                             color: Colors.purpleAccent[200]),
                                       )),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   InkWell(
@@ -441,9 +445,9 @@ class _HelloPageState extends State<HelloPage> {
                                         sharedPreferences
                                                     .getString('isFromCloud') ==
                                                 "true"
-                                            ? Get.to(() => HoursLogScreenCloud(
+                                            ? Get.to(() => const HoursLogScreenCloud(
                                                 title: "Hours Log Cloud"))
-                                            : Get.to(() => HoursLogScreenBi(
+                                            : Get.to(() => const HoursLogScreenBi(
                                                 title: "Hours Log BI"));
                                       },
                                       child: Material(
@@ -452,20 +456,20 @@ class _HelloPageState extends State<HelloPage> {
                                               BorderRadius.circular(16),
                                           child: Container(
            
-                                            padding: EdgeInsets.only(
+                                            padding: const EdgeInsets.only(
                                                 top: 8,
                                                 bottom: 8,
                                                 left: 16,
                                                 right: 16),
-                                            child: Text("New hour log",
-                                                style: TextStyle(
-                                                    color: Colors.purpleAccent,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
                                             decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(16)),
+                                            child: const Text("New hour log",
+                                                style: TextStyle(
+                                                    color: Colors.purpleAccent,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           )))
                                 ],
                               ),
@@ -476,7 +480,7 @@ class _HelloPageState extends State<HelloPage> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
                 Row(
@@ -486,7 +490,7 @@ class _HelloPageState extends State<HelloPage> {
                         elevation: 0,
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                               color: Colors.blue[100],
                               borderRadius: BorderRadius.circular(16)),
@@ -505,14 +509,14 @@ class _HelloPageState extends State<HelloPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Leave logs",
                                     style: TextStyle(
                                         color: Colors.blueAccent,
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   SizedBox(
@@ -523,7 +527,7 @@ class _HelloPageState extends State<HelloPage> {
                                         style: TextStyle(
                                             color: Colors.blueAccent[200]),
                                       )),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 16,
                                   ),
                                   InkWell(
@@ -541,20 +545,20 @@ class _HelloPageState extends State<HelloPage> {
                                           borderRadius:
                                               BorderRadius.circular(16),
                                           child: Container(
-                                            padding: EdgeInsets.only(
+                                            padding: const EdgeInsets.only(
                                                 top: 8,
                                                 bottom: 8,
                                                 left: 16,
                                                 right: 16),
-                                            child: Text("Apply leave",
-                                                style: TextStyle(
-                                                    color: Colors.blueAccent,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
                                             decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(16)),
+                                            child: const Text("Apply leave",
+                                                style: TextStyle(
+                                                    color: Colors.blueAccent,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           )))
                                 ],
                               ),
@@ -565,7 +569,7 @@ class _HelloPageState extends State<HelloPage> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
                 sharedPreference.get("email").toString() ==
@@ -577,7 +581,7 @@ class _HelloPageState extends State<HelloPage> {
                               elevation: 0,
                               borderRadius: BorderRadius.circular(16),
                               child: Container(
-                                padding: EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                     color: Colors.blueGrey[100],
                                     borderRadius: BorderRadius.circular(16)),
@@ -598,14 +602,14 @@ class _HelloPageState extends State<HelloPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        const Text(
                                           "Admin Space",
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 16,
                                         ),
                                         SizedBox(
@@ -613,12 +617,12 @@ class _HelloPageState extends State<HelloPage> {
                                                     .size
                                                     .width /
                                                 2,
-                                            child: Text(
+                                            child: const Text(
                                               "Power up your admin tasks with our admin space",
                                               style: TextStyle(
                                                   color: Colors.black54),
                                             )),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 16,
                                         ),
                                         InkWell(
@@ -639,21 +643,21 @@ class _HelloPageState extends State<HelloPage> {
                                                 borderRadius:
                                                     BorderRadius.circular(16),
                                                 child: Container(
-                                                  padding: EdgeInsets.only(
+                                                  padding: const EdgeInsets.only(
                                                       top: 8,
                                                       bottom: 8,
                                                       left: 16,
                                                       right: 16),
-                                                  child: Text("Take action",
-                                                      style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
                                                   decoration: BoxDecoration(
                                                       color: Colors.white,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               16)),
+                                                  child: const Text("Take action",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                 )))
                                       ],
                                     ),
@@ -664,7 +668,7 @@ class _HelloPageState extends State<HelloPage> {
                           ),
                         ],
                       )
-                    : SizedBox()
+                    : const SizedBox()
               ],
             ),
           ),

@@ -24,8 +24,8 @@ class _LeaveLogsPageState extends State<LeaveLogsPage> {
   void initState() {
     super.initState();
     var year=DateTime.now().year;
-    var year2=DateTime.now().subtract(Duration(days: 365)).year;
-    var year3=DateTime.now().add(Duration(days: 365)).year;
+    var year2=DateTime.now().subtract(const Duration(days: 365)).year;
+    var year3=DateTime.now().add(const Duration(days: 365)).year;
     listDates.add('$year-$year3');
     listDates.add('$year2-$year');
     selectedDatevalue=listDates[0];
@@ -35,7 +35,7 @@ class _LeaveLogsPageState extends State<LeaveLogsPage> {
     list=await KredilyClock().getLeaveLogs(widget.csrfToken, widget.sessionId,date);
     setState(() {
     });
-    print("Listx ${list}");
+    print("Listx $list");
   }
 
   Future<void> cancelLeaveFunction(index) async {
@@ -59,11 +59,11 @@ class _LeaveLogsPageState extends State<LeaveLogsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Leave Logs',style: TextStyle(fontWeight: FontWeight.bold),),
+      appBar: AppBar(title: const Text('Leave Logs',style: TextStyle(fontWeight: FontWeight.bold),),
       actions: [
         // Text("2023-2024"),
         dropDown(selectedDatevalue),
-        SizedBox(width: 16,)
+        const SizedBox(width: 16,)
       ],),
 
         body: RefreshIndicator(
@@ -73,7 +73,7 @@ class _LeaveLogsPageState extends State<LeaveLogsPage> {
             });
             getData(selectedDatevalue);
           },
-          child: list.isEmpty?Center(child: CircularProgressIndicator(color: Colors.red,),):SingleChildScrollView(
+          child: list.isEmpty?const Center(child: CircularProgressIndicator(color: Colors.red,),):SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(children: [
@@ -92,26 +92,26 @@ class _LeaveLogsPageState extends State<LeaveLogsPage> {
       children: [
         Expanded(
           child: Material(elevation: 0,borderRadius: BorderRadius.circular(16),
-            child: Container(margin: EdgeInsets.only(bottom: 16),padding: EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.grey[100],borderRadius: BorderRadius.circular(16)),child:
+            child: Container(margin: const EdgeInsets.only(bottom: 16),padding: const EdgeInsets.all(16),decoration: BoxDecoration(color: Colors.grey[100],borderRadius: BorderRadius.circular(16)),child:
             Column(crossAxisAlignment: CrossAxisAlignment.start,children: [
-              Text('${list[index][0]}',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-              SizedBox(height: 4,),
+              Text('${list[index][0]}',style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+              const SizedBox(height: 4,),
               SizedBox(child: Text('Start Date : ${list[index][1]}'.toString())),
-              SizedBox(height: 4,),
+              const SizedBox(height: 4,),
               SizedBox(child: Text('End Date : ${list[index][2]}'.toString())),
-              SizedBox(height: 4,),
+              const SizedBox(height: 4,),
               SizedBox(child: Text('Days : ${list[index][3]}'.toString(),)),
-              SizedBox(height: 4,),
+              const SizedBox(height: 4,),
               SizedBox(child: Text('Applied On : ${list[index][4]}'.toString(),)),
-              SizedBox(height: 4,),
+              const SizedBox(height: 4,),
               SizedBox(child: Text('Status : ${list[index][5]}'.toString())),
-              SizedBox(height: 8,),
-              list[index][6]['allow_cancel_button']==false?SizedBox():InkWell(onTap: () async {
+              const SizedBox(height: 8,),
+              list[index][6]['allow_cancel_button']==false?const SizedBox():InkWell(onTap: () async {
                 cancelLeaveFunction(index);
-              },child: Material(elevation: 2,borderRadius: BorderRadius.circular(16),child: Obx(() => Container(width: myController.cancelLeaveLoading==true?50:null,padding: EdgeInsets.only(top: 8,bottom: 8,left: 16,right: 16),child:
+              },child: Material(elevation: 2,borderRadius: BorderRadius.circular(16),child: Obx(() => Container(width: myController.cancelLeaveLoading==true?50:null,padding: const EdgeInsets.only(top: 8,bottom: 8,left: 16,right: 16),decoration: BoxDecoration(color: Colors.deepOrangeAccent,borderRadius: BorderRadius.circular(16)),child:
               myController.cancelLeaveLoading==true?
-              SizedBox(height: 20,child: CircularProgressIndicator(color: Colors.white,),):
-              Text("Cancel",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),decoration: BoxDecoration(color: Colors.deepOrangeAccent,borderRadius: BorderRadius.circular(16)),)))),
+              const SizedBox(height: 20,child: CircularProgressIndicator(color: Colors.white,),):
+              const Text("Cancel",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),)))),
 
               // SizedBox(height: 40,width: 40,child: Container(decoration: BoxDecoration(color: Colors.deepOrangeAccent,borderRadius: BorderRadius.circular(30)),padding: EdgeInsets.all(8),child: CircularProgressIndicator(color: Colors.white,))),
             ],),),

@@ -48,10 +48,10 @@ Future<void> printHello() async {
   final firstDayOfMonth = DateTime(year, month, 1);
   final firstSaturday = _getNextSaturday(firstDayOfMonth);
 
-  final secondSaturday = _getNextSaturday(firstSaturday.add(Duration(days: 7)));
+  final secondSaturday = _getNextSaturday(firstSaturday.add(const Duration(days: 7)));
 
-  final fifthSaturday = _getNextSaturday(firstSaturday.add(Duration(days: 28)));
-  final fourthSaturday = fifthSaturday.subtract(Duration(days: 7));
+  final fifthSaturday = _getNextSaturday(firstSaturday.add(const Duration(days: 28)));
+  final fourthSaturday = fifthSaturday.subtract(const Duration(days: 7));
 
   print('Second Saturday of the month: ${secondSaturday.toString()}');
   print('Fourth Saturday of the month: ${fourthSaturday.toString()}');
@@ -65,7 +65,7 @@ Future<void> printHello() async {
     return;
   }
 
-  print("[$now] Hello, world! isolate=${isolateId} function='$printHello'");
+  print("[$now] Hello, world! isolate=$isolateId function='$printHello'");
   // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin=FlutterLocalNotificationsPlugin();
   // await flutterLocalNotificationsPlugin.initialize(InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
 
@@ -105,13 +105,13 @@ fetchData() async {
 ''';
 
   var spreadSheetId = "1TRjzU-PAkm3_rQJpmL1aWo4r-jJDh200XlmAVfvZukI";
-  var spreadSheet;
+  Spreadsheet spreadSheet;
   final gsheets = GSheets(credential);
   spreadSheet = await gsheets.spreadsheet(spreadSheetId);
 
   var memberList = [];
   List<String> emailList = [];
-  Worksheet sheet = spreadSheet.worksheetByTitle("Data Sheet");
+  Worksheet sheet = spreadSheet.worksheetByTitle("Data Sheet")!;
   memberList = (await sheet.values.columnByKey("Team Member Name"))!;
   var statusList = (await sheet.values.columnByKey("Current Status"))!;
   var levelList = (await sheet.values.columnByKey("Level of Members"))!;
@@ -144,7 +144,7 @@ fetchData() async {
   // print(memberList);
   // print(emailList);
 
-  Worksheet sheet2 = spreadSheet.worksheetByTitle("Hours Log");
+  Worksheet sheet2 = spreadSheet.worksheetByTitle("Hours Log")!;
   var allRow = await sheet2.values.allRows();
 
   if (allRow.isEmpty) return;
