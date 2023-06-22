@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_gsheet/hello_page.dart';
+import 'package:flutter_gsheet/login_page.dart';
 import 'package:flutter_gsheet/my_controller.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -204,6 +205,8 @@ class KredilyClock{
       "X-CSRFToken":'$csrfToken',
       'Cookie': 'csrftoken=$csrfToken; sessionid=$sessionId'
     };
+
+    print('header:${header}');
     try{
       var response=await http.get(Uri.parse('https://scaleupallyio.kredily.com/leave-request/leave_accrual_user/'),headers: header);
       print(response.statusCode);
@@ -214,6 +217,8 @@ class KredilyClock{
       var error="Something went wrong!";
       if(e.toString().contains("Failed host lookup")){
         error="You are not connected to internet";
+      }else {
+        Get.offAll(LoginPage());
       }
       Fluttertoast.showToast(msg: "Something went wrong!");
     }

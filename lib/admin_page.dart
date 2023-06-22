@@ -61,11 +61,8 @@ class _AdminPageState extends State<AdminPage> {
     memberList.removeAt(indd);
     emailList.removeAt(indd);
 
-    print('admin AFTERRRR ${memberList.length}');
-    print('admin AFTERRRR ${emailList.length}');
-
-    // print(memberList);
-    // print(emailList);
+    // print('admin AFTERRRR ${memberList.length}');
+    // print('admin AFTERRRR ${emailList.length}');
 
     Worksheet sheet2 = spreadSheet.worksheetByTitle("Hours Log");
     var allRow = await sheet2.values.allRows(fromRow: 10000);
@@ -82,57 +79,22 @@ class _AdminPageState extends State<AdminPage> {
     //     DateTime.fromMillisecondsSinceEpoch(millis.toInt(), isUtc: true);
     // String formattedDateTime = DateFormat('dd-MM-yyyy').format(dateTimeGet);
     String formattedNow = DateFormat('dd-MM-yyyy').format(dateTime);
-
     for (int i = 0; i < allRow.length; i++) {
-      // print(allRow[i][0]);
       final serializedDate = int.tryParse(allRow[i][0]);
       if (serializedDate != null) {
-        print('serializedDate:$serializedDate');
         final DateTime baseDate = DateTime(1900, 1, 1);
         final DateTime properDate =
-            baseDate.add(Duration(days: serializedDate - 1));
-        print('serializedDate pro:$properDate');
-        // print(properDate);
+            baseDate.add(Duration(days: serializedDate - 2));
         allRow[i][0] = DateFormat('dd-MM-yyyy').format(properDate);
-        print('admin last ${allRow[i][0]}');
+        if (allRow[i][0] == formattedNow) {
+          memberList.removeWhere((element) => element == allRow[i][1]);
+        }
       }
     }
 
-    for (int i = 0; i < allRow.length; i++) {
-
-      if (allRow[i][0] == formattedNow) {
-        // print("admin LIAAAAAAAAAAA ${allRow[i][0]}");
-        print("admin name ${allRow[i][1]}");
-        // print("admin date ${allRow[i][0]}");
-        // print("admin desc ${allRow[i][5]}");
-        // print('memberList before:${memberList.length}');
-        //
-        print('memberList before:${memberList.length}');
-        memberList.removeWhere((element) => element == allRow[i][1]);
-        // memberList.where((element) {
-        //  print('memberList after:${element}');
-          // print('memberList nameee:${allRow[i][1]}');
-          // return true;
-        // }) .map((e) => e[1])
-        //     .toList();
-        print('memberList after:${memberList.length}');
-      }}
-
-
-    //   if ( allRow[i][0] == formattedNow) {
-
-    // }
-
-    // String formattedNow = DateFormat('dd-MM-yyyy').format(dateTime);
-
+    memberList.removeWhere((element) => element == 'Bhanu');
     isLoading.value = false;
-    setState(() {
-
-      print('memberList:${memberList.length}');
-
-    });
-    // print("admin LIAAAAAAAAAAA ${memberList.length}");
-    // print("admin LIAAAAAAAAAAA!!@@@ ${emailList.length}");
+    setState(() {});
   }
 
   fetchDataBI() async {
@@ -164,12 +126,6 @@ class _AdminPageState extends State<AdminPage> {
     int indd = memberList.indexOf("Sparsh Gupta");
     memberList.removeAt(indd);
     emailList.removeAt(indd);
-
-    print('admin AFTERRRR ${memberList.length}');
-    print('admin AFTERRRR ${emailList.length}');
-
-    // print(memberList);
-    // print(emailList);
 
     Worksheet sheet2 = spreadSheet.worksheetByTitle("Sheet1");
     var allRow = await sheet2.values.allRows();
@@ -232,16 +188,15 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   sendPersonalMsg() async {
-    for (int i = 0; i < emailList.length; i++) {
+    for (int i = 0; i < memberList.length; i++) {
       String title = "Hours log Update";
       String body = "${memberList[i]} Please update your hours log";
-      print(memberList.length);
-      print(emailList.length);
+      print('${memberList.length} member');
+      print('${emailList.length} email');
       print(i);
       var value = await KredilyClock().sendNotification(
           title, body, emailList[i].toLowerCase().replaceAll('@', '.'));
       if (value != null) {
-        // print(emailList);
       }
     }
   }
@@ -263,7 +218,8 @@ class _AdminPageState extends State<AdminPage> {
           fetchData();
         },
         child: SingleChildScrollView(
-          child: Padding(
+          child: Container(
+            height: Get.height,
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,7 +247,7 @@ class _AdminPageState extends State<AdminPage> {
                         decoration: BoxDecoration(
                             color: Colors.blueAccent,
                             borderRadius: BorderRadius.circular(10)),
-                        child:  Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Padding(
@@ -325,7 +281,7 @@ class _AdminPageState extends State<AdminPage> {
                           value2 = false;
                           setState(() {});
                         }),
-                    const Text("TaskList message")
+                    const Text("Task list message")
                   ],
                 ),
                 Row(
@@ -337,7 +293,7 @@ class _AdminPageState extends State<AdminPage> {
                           value1 = false;
                           setState(() {});
                         }),
-                    const Text("Hour logs message")
+                    const Text("Hours log message")
                   ],
                 ),
                 Row(
@@ -383,7 +339,7 @@ class _AdminPageState extends State<AdminPage> {
                 Text(
                     memberList.isEmpty
                         ? ''
-                        : 'Remaining logs for ${DateFormat('dd-MM-yyyy').format(dateTime)} ${memberList.length}',
+                        : 'Remaining logs for ${DateFormat('dd-MM-yyyy').format(dateTime)}',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 22)),
 
@@ -405,41 +361,37 @@ class _AdminPageState extends State<AdminPage> {
                     },
                     child: Text("Change Date")),
                 isLoading.value
-                    ? const Center(
+                    ?  Center(
                         child: CircularProgressIndicator(),
                       )
-                    : Text(memberList.isEmpty
-                        ? ''
-                        : memberList.join(", ").toString()),
+                    : memberList.isEmpty
+                        ? Text('data')
+                        :Text(memberList.join(", ").toString()),
                 const SizedBox(
                   height: 16,
                 ),
-
                 memberList.isEmpty || isLoading.value
-                    ? const SizedBox()
-                    : Row(
-                        children: [
-                          Expanded(
-                              child: InkWell(
-                                  onTap: () {
-                                    sendPersonalMsg();
-                                    // fetchData();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                        color: Colors.blueAccent,
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: const Text(
-                                        "Send Message to everyone",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
-                                        textAlign: TextAlign.center),
-                                  )))
-                        ],
-                      ),
+                    ? SizedBox()
+                    : InkWell(
+                        onTap: () {
+                          sendPersonalMsg();
+                          // fetchData();
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 52,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                              color: Colors.blueAccent,
+                              borderRadius:
+                                  BorderRadius.circular(10)),
+                          child: const Text(
+                              "Send Message to everyone",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center),
+                        )),
               ],
             ),
           ),

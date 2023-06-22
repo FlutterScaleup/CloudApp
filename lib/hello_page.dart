@@ -9,6 +9,7 @@ import 'package:flutter_gsheet/kredily_clock.dart';
 import 'package:flutter_gsheet/leave_page.dart';
 import 'package:flutter_gsheet/login_page.dart';
 import 'package:flutter_gsheet/my_controller.dart';
+import 'package:flutter_gsheet/project_management_page.dart';
 import 'package:flutter_gsheet/views/hours_log_screen_bi.dart';
 import 'package:flutter_gsheet/views/hours_log_screen_cloud.dart';
 import 'package:get/get.dart';
@@ -559,6 +560,97 @@ class _HelloPageState extends State<HelloPage> {
                                                     color: Colors.blueAccent,
                                                     fontWeight:
                                                         FontWeight.bold)),
+                                          )))
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+
+//project
+                Row(
+                  children: [
+                    Expanded(
+                      child: Material(
+                        elevation: 0,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              borderRadius: BorderRadius.circular(16)),
+                          child: Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 24.0),
+                                child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: SizedBox(
+                                      height: 130,
+                                      width: 130,
+                                      child: Image.asset("assets/leave.png"),
+                                    )),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Project logs",
+                                    style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(
+                                    height: 16,
+                                  ),
+                                  SizedBox(
+                                      width:
+                                      MediaQuery.of(context).size.width / 2,
+                                      child: Text(
+                                        "A well-executed project management approach minimizes risks and maximizes outcomes",
+                                        style: TextStyle(
+                                            color: Colors.green[500]),
+                                      )),
+                                  const SizedBox(
+                                    height: 16,
+                                  ),
+                                  InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (builder) => ProjectManagementPage(
+                                                  // csrfToken: csrfToken,
+                                                  // sessionId: sessionId,
+                                                )));
+                                      },
+                                      child: Material(
+                                          elevation: 2,
+                                          borderRadius:
+                                          BorderRadius.circular(16),
+                                          child: Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 8,
+                                                bottom: 8,
+                                                left: 16,
+                                                right: 16),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                BorderRadius.circular(16)),
+                                            child: const Text("Project Management",
+                                                style: TextStyle(
+                                                    color: Colors.green,
+                                                    fontWeight:
+                                                    FontWeight.bold)),
                                           )))
                                 ],
                               ),
