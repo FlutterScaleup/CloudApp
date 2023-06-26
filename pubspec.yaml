@@ -46,6 +46,7 @@ dependencies:
   gsheets: ^0.4.2
   http: ^0.13.5
   intl: ^0.18.0
+  lottie: ^2.3.2
   shared_preferences: ^2.1.1
   showcaseview: ^2.0.3
 
@@ -61,12 +62,15 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   change_app_package_name: ^1.1.0
 
-flutter_launcher_icons:
+  flutter_launcher_icons:
+
+flutter_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/scaleupwhite.png"
   min_sdk_android: 21
   remove_alpha_ios: true
+  image_path_ios: "assets/scaleupwhite.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter packages.
@@ -79,6 +83,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/lottie/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see

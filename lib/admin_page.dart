@@ -4,12 +4,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'kredily_clock.dart';
 import 'main.dart';
 
 class AdminPage extends StatefulWidget {
   String csrfToken;
   String sessionId;
+
   AdminPage({Key? key, required this.csrfToken, required this.sessionId})
       : super(key: key);
 
@@ -87,12 +89,26 @@ class _AdminPageState extends State<AdminPage> {
             baseDate.add(Duration(days: serializedDate - 2));
         allRow[i][0] = DateFormat('dd-MM-yyyy').format(properDate);
         if (allRow[i][0] == formattedNow) {
-          memberList.removeWhere((element) => element == allRow[i][1]);
+          var indexElement =
+              memberList.indexWhere((element) => element == allRow[i][1]);
+          // print('index list:$indexElement');
+
+          if (indexElement != -1) {
+            memberList.removeAt(indexElement);
+            emailList.removeAt(indexElement);
+          }
+          // List newList = allRow
+          //     .where((element) => element[0] == allRow[allRow.length - 1][0])
+          //     .map((e) => e[1])
+          //     .toList();
+          // memberList.removeWhere((e) => newList.contains(e));
         }
       }
     }
 
-    memberList.removeWhere((element) => element == 'Bhanu');
+    int indexValue = memberList.indexOf("Bhanu");
+    memberList.removeAt(indexValue);
+    emailList.removeAt(indexValue);
     isLoading.value = false;
     setState(() {});
   }
@@ -191,8 +207,8 @@ class _AdminPageState extends State<AdminPage> {
     for (int i = 0; i < memberList.length; i++) {
       String title = "Hours log Update";
       String body = "${memberList[i]} Please update your hours log";
-      print('${memberList.length} member');
-      print('${emailList.length} email');
+      print('${memberList} member');
+      print('${emailList} email');
       print(i);
       var value = await KredilyClock().sendNotification(
           title, body, emailList[i].toLowerCase().replaceAll('@', '.'));
@@ -336,12 +352,13 @@ class _AdminPageState extends State<AdminPage> {
                 const SizedBox(
                   height: 50,
                 ),
-                Text(
-                    memberList.isEmpty
-                        ? ''
-                        : 'Remaining logs for ${DateFormat('dd-MM-yyyy').format(dateTime)}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 22)),
+                Visibility(
+                  visible:  memberList.isNotEmpty,
+                  child: Text(
+                      'Remaining logs for ${DateFormat('dd-MM-yyyy').format(dateTime)}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 22)),
+                ),
 
                 TextButton(
                     onPressed: () {
@@ -361,12 +378,12 @@ class _AdminPageState extends State<AdminPage> {
                     },
                     child: Text("Change Date")),
                 isLoading.value
-                    ?  Center(
+                    ? Center(
                         child: CircularProgressIndicator(),
                       )
                     : memberList.isEmpty
-                        ? Text('data')
-                        :Text(memberList.join(", ").toString()),
+                        ? LottieBuilder.asset('assets/lottie/noMember.json')
+                        : Text(memberList.join(", ").toString()),
                 const SizedBox(
                   height: 16,
                 ),
@@ -383,10 +400,8 @@ class _AdminPageState extends State<AdminPage> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                               color: Colors.blueAccent,
-                              borderRadius:
-                                  BorderRadius.circular(10)),
-                          child: const Text(
-                              "Send Message to everyone",
+                              borderRadius: BorderRadius.circular(10)),
+                          child: const Text("Send Message to everyone",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold),
