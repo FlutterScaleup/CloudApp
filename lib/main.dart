@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gsheet/firebase_options.dart';
 import 'package:flutter_gsheet/hello_page.dart';
 import 'package:flutter_gsheet/onBoard/on_board_screen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +45,8 @@ const credentialBI = r'''
 // var spreadSheetId="1TRjzU-PAkm3_rQJpmL1aWo4r-jJDh200XlmAVfvZukI";
 
 var spreadSheetId = "1c1AV0zQ6rFB4TjzX406fSBWwIXQpIoqaVE5-ctygOWU";
-var spreadSheetIdBI = "1WDr07Z8Ytjn4R2qjDkBPdK1tJEbMWNvnVQCz0ZM9aek";
+var spreadSheetIdBI = "1NIrj6uVQ9mfNnWTgKcfDSFg1zR9pxLfqUJaTrQh6ET8";
+// var spreadSheetIdBI = "1WDr07Z8Ytjn4R2qjDkBPdK1tJEbMWNvnVQCz0ZM9aek";
 
 var spreadSheet;
 var spreadSheetBI;
@@ -53,13 +58,42 @@ Future<void> main() async {
 
   final gsheets = GSheets(credential);
   final gsheetsBI = GSheets(credentialBI);
-  spreadSheet = await gsheets.spreadsheet(spreadSheetId);
-  spreadSheetBI = await gsheetsBI.spreadsheet(spreadSheetIdBI);
-
-  await Firebase.initializeApp(
+  bool worked = false;
+  int tries = 0;
+  while (!worked && tries < 2) {
+    try {
+      if (tries > 0) {
+        Fluttertoast.showToast(
+            msg: "Unable to connect Google Sheets, Trying again...");
+      }
+      await Future.delayed(const Duration(milliseconds: 800));
+      spreadSheet = await gsheets.spreadsheet(spreadSheetId);
+      spreadSheetBI = await gsheetsBI.spreadsheet(spreadSheetIdBI);
+      worked = true;
+    } catch (e) {
+      tries++;
+    }
+  }
+  AlertDialog(
+    title: const Text("Err: Disconnected"),
+    content: const Text(
+        "Unable to load data from internet, please check your internet connection or try connecting to a different network.\nIf the problem persists contact developer."),
+  );
+  if (worked) {
+    print("Nor worked");
+    Fluttertoast.showToast(
+        msg:
+            "Unable to load Google Sheets, please check your internet connection and try again");
+  }
+  // check if web
+  if (kIsWeb) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.web);
+  } else {
+    await Firebase.initializeApp(
       // name: "Scaleupally",
-      // options: DefaultFirebaseOptions.currentPlatform,
-      );
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   await FirebaseMessaging.instance.requestPermission(
       sound: true,
       badge: true,
@@ -73,13 +107,15 @@ Future<void> main() async {
     print(jsonEncode(event.notification));
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin.initialize(const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+    await flutterLocalNotificationsPlugin.initialize(
+        const InitializationSettings(
+            android: AndroidInitializationSettings('@mipmap/ic_launcher')));
     flutterLocalNotificationsPlugin.show(
         1,
         event.data['title'] + "listen",
         event.data['body'],
-        const NotificationDetails(android: AndroidNotificationDetails("1", "sad")));
+        const NotificationDetails(
+            android: AndroidNotificationDetails("1", "sad")));
   });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 

@@ -23,12 +23,13 @@ class _RadioButtonsWidgetState extends State<RadioButtonsWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        const Spacer(
-          flex: 1,
-        ),
+        // const Spacer(
+        //   flex: 1,
+        // ),
         SizedBox(
-          width: Get.width * 0.4,
+          width: 150,
           // height: 100,
           child: RadioListTile(
             contentPadding: EdgeInsets.zero,
@@ -47,7 +48,7 @@ class _RadioButtonsWidgetState extends State<RadioButtonsWidget> {
           ),
         ),
         SizedBox(
-         width: Get.width * 0.4,
+          width: 150,
           // height: 100,
           child: RadioListTile(
             contentPadding: EdgeInsets.zero,

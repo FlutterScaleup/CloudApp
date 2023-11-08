@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -49,6 +46,17 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDIKmhy1zYbpWk8gKprf_f3cyYs40wzVhg',
+    appId: '1:937888834443:web:647091d9f6e54929dc058e',
+    messagingSenderId: '937888834443',
+    projectId: 'scaleupprojecttracker',
+    authDomain: 'scaleupprojecttracker.firebaseapp.com',
+    databaseURL: 'https://scaleupprojecttracker-default-rtdb.firebaseio.com',
+    storageBucket: 'scaleupprojecttracker.appspot.com',
+    measurementId: 'G-KQ1N374E85',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyA4W4Yauvob4ket6qNBY8YEVyhNRhlTWSQ',
     appId: '1:937888834443:android:79cebefed59c8cc5dc058e',
@@ -60,7 +68,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCHI1zU5e3lOgUt00mfft6GceKxoXWAPiY',
-    appId: '1:937888834443:ios:3a2f176448a70a6cdc058e',
+    appId: '1:937888834443:ios:31321a830ef4d35bdc058e',
     messagingSenderId: '937888834443',
     projectId: 'scaleupprojecttracker',
     databaseURL: 'https://scaleupprojecttracker-default-rtdb.firebaseio.com',

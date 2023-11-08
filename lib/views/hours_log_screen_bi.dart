@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:drop_down_list/drop_down_list.dart';
 import 'package:drop_down_list/model/selected_list_item.dart';
@@ -11,6 +13,7 @@ import 'package:intl/intl.dart';
 
 class HoursLogScreenBi extends StatefulWidget {
   const HoursLogScreenBi({super.key, required this.title});
+
   final String title;
 
   @override
@@ -24,7 +27,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   List<SelectedListItem> selectedProjectList = [];
   String selectedProjectValue = "Project Name";
   List<SelectedListItem> selectedReportList = [];
-  String selectedReportValue = "Report Name";
+
+  // String selectedReportValue = "Report Name";
   List<SelectedListItem> selectedTaskList = [];
   String selectedTaskValue = "Category of Task";
   String selectedStatustValue = "Status of Task";
@@ -41,17 +45,21 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   Duration? difference;
   Duration? globalSelectedDuration;
   TextEditingController textEditingController = TextEditingController();
+  TextEditingController textReportValueController = TextEditingController();
+
   // late SharedPreferences sharedPrefrence;
   RxBool isLoading = false.obs;
   List list = [];
   bool progress = false;
+  DateTime? startHourDateTime, EndHourDateTime;
 
   RxString totalHours = "".obs;
-  var coreTasKIDList;
-  var helpTasKIDList;
-  var rnDTaskIDList;
-  var otherTaskIDList;
-  var leisureTaskIDList;
+
+  // var coreTasKIDList;
+  // var helpTasKIDList;
+  // var rnDTaskIDList;
+  // var otherTaskIDList;
+  // var leisureTaskIDList;
 
   getdata() async {
     var dataSaved = await sharedPreference.get("saveDataToBI") ?? false;
@@ -65,8 +73,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   @override
   void initState() {
     super.initState();
-    var justNow = DateTime.now();
-    now = DateFormat('dd-MMMM-yyyy').format(justNow);
+    // var justNow = DateTime.now();
+    // now = DateFormat('dd-MMMM-yyyy').format(justNow);
     getdata();
   }
 
@@ -98,8 +106,6 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     //   "End Time",
     // ]));
 
-
-
     // sheet.values.allRows().then((value) {
     //   log(value.toString());
     // });
@@ -116,12 +122,11 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     var itemsReportName =
         await sharedPreference.getStringList("itemReportName")!;
     var itemsTask = await sharedPreference.getStringList("itemTask")!;
-    coreTasKIDList = await sharedPreference.getStringList("coreTasKIDList")!;
-    helpTasKIDList = await sharedPreference.getStringList("helpTasKIDList")!;
-    rnDTaskIDList = await sharedPreference.getStringList("rnDTaskIDList")!;
-    otherTaskIDList = await sharedPreference.getStringList("otherTaskIDList")!;
-    leisureTaskIDList =
-        await sharedPreference.getStringList("leisureTaskIDList")!;
+    // coreTasKIDList = await sharedPreference.getStringList("coreTasKIDList")!;
+    // helpTasKIDList = await sharedPreference.getStringList("helpTasKIDList")!;
+    // rnDTaskIDList = await sharedPreference.getStringList("rnDTaskIDList")!;
+    // otherTaskIDList = await sharedPreference.getStringList("otherTaskIDList")!;
+    // leisureTaskIDList =await sharedPreference.getStringList("leisureTaskIDList")!;
 
     if (selectedMemberValue == "Member Name") {
       var emailList = await sharedPreference.getStringList("emailList")!;
@@ -138,6 +143,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     for (String x in itemsMember) {
       selectedMemberList.add(SelectedListItem(name: x));
     }
+
+    print('selectedMemberList:${selectedMemberList.length}');
     for (String x in itemsProject) {
       selectedProjectList.add(SelectedListItem(name: x));
     }
@@ -176,24 +183,22 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
       var itemsMember = (await sheet.values.columnByKey("Name"))!;
       var itemsProject =
           (await sheet.values.columnByKey("Client/Project Name"))!;
-      var itemsReportName = (await sheet.values.columnByKey("ReportName"))!;
+      var itemsReportName = (await sheet.values.columnByKey("Report Name"))!;
       var itemsTask = (await sheet.values.columnByKey("Task Type"))!;
-      coreTasKIDList = (await sheet.values.columnByKey("Core Task ID"))!;
-      helpTasKIDList = (await sheet.values.columnByKey("Help Task ID"))!;
-      rnDTaskIDList = (await sheet.values.columnByKey("R&D Task ID"))!;
-      otherTaskIDList =
-          (await sheet.values.columnByKey("Other Work-Related Task ID"))!;
-      leisureTaskIDList = (await sheet.values.columnByKey("Leisure Task ID"))!;
+      // coreTasKIDList = (await sheet.values.columnByKey("Core Task ID"))!;
+      // helpTasKIDList = (await sheet.values.columnByKey("Help Task ID"))!;
+      // rnDTaskIDList = (await sheet.values.columnByKey("R&D Task ID"))!;
+      // otherTaskIDList =(await sheet.values.columnByKey("Other Work-Related Task ID"))!;
+      // leisureTaskIDList = (await sheet.values.columnByKey("Leisure Task ID"))!;
       await sharedPreference.setStringList("itemMember", itemsMember);
       await sharedPreference.setStringList("itemProject", itemsProject);
       await sharedPreference.setStringList("itemReportName", itemsReportName);
       await sharedPreference.setStringList("itemTask", itemsTask);
-      await sharedPreference.setStringList("coreTasKIDList", coreTasKIDList);
-      await sharedPreference.setStringList("helpTasKIDList", helpTasKIDList);
-      await sharedPreference.setStringList("rnDTaskIDList", rnDTaskIDList);
-      await sharedPreference.setStringList("otherTaskIDList", otherTaskIDList);
-      await sharedPreference.setStringList(
-          "leisureTaskIDList", leisureTaskIDList);
+      // await sharedPreference.setStringList("coreTasKIDList", coreTasKIDList);
+      // await sharedPreference.setStringList("helpTasKIDList", helpTasKIDList);
+      // await sharedPreference.setStringList("rnDTaskIDList", rnDTaskIDList);
+      // await sharedPreference.setStringList("otherTaskIDList", otherTaskIDList);
+      // await sharedPreference.setStringList("leisureTaskIDList", leisureTaskIDList);
 
       if (selectedMemberValue == "Member Name") {
         var emailList = (await sheet.values.columnByKey("Email"))!;
@@ -208,9 +213,13 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
           }
         }
       }
+
+      // saveFile(itemsMember);
       for (String x in itemsMember) {
         selectedMemberList.add(SelectedListItem(name: x));
       }
+
+      print('215 selectedMemberList:${selectedMemberList.length}');
       for (String x in itemsProject) {
         selectedProjectList.add(SelectedListItem(name: x));
       }
@@ -227,12 +236,30 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
       ]);
       await sharedPreference.setBool("saveDataToBI", true);
     } catch (e) {
-      Fluttertoast.showToast(msg: "Something went wrong");
+      Fluttertoast.showToast(msg: "Something went wrong $e");
       print(e);
     } finally {
       isLoading.value = false;
       setState(() {});
     }
+  }
+
+  Future<String> getFilePath() async {
+    // Directory appDocumentsDirectory = await getApplicationDocumentsDirectory(); // 1
+    var directory = Directory('/storage/emulated/0/Download');
+
+    String appDocumentsPath = directory.path; // 2
+    String filePath = '$appDocumentsPath/cloud.txt'; // 3
+    print('page/state filepath $directory');
+    return filePath;
+  }
+
+  void saveFile(filter) async {
+    print('page/state file save ${(filter)}');
+    File file = File(await getFilePath()); // 1
+    file.writeAsString(json.encode(filter));
+    // file.writeAsString(jsonDecode(filter));
+    // 2
   }
 
   sheetWork() async {
@@ -310,47 +337,46 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   }
 
   insertToList() {
+    print('check:$startHourDateTime');
+
+    if(now == 'Select Date'){
+      Fluttertoast.showToast(msg: "Select Date");
+      return;
+    } else
     if (selectedMemberValue == "Member Name") {
       Fluttertoast.showToast(msg: "Select Member Name");
       return;
-    }
-    if (selectedProjectValue == "Project Name") {
+    } else if (selectedProjectValue == "Project Name") {
       Fluttertoast.showToast(msg: "Select Project Name");
       return;
-    }
-    if (selectedReportValue == "Report Name") {
+    } else if (textReportValueController.text.trim() == "") {
       Fluttertoast.showToast(msg: "Select Report Name");
       return;
-    }
-    if (selectedTaskValue == "Category of Task") {
+    } else if (selectedTaskValue == "Category of Task") {
       Fluttertoast.showToast(msg: "Select Category of Task");
       return;
-    }
-
-    if (selectedHourValue == "Start Time") {
+    } else if (selectedHourValue == "Start Time") {
       Fluttertoast.showToast(msg: "Select Start Time");
       return;
-    }
-    if (selectedEndHourValue == "End Time") {
+    } else if (selectedEndHourValue == "End Time") {
       Fluttertoast.showToast(msg: "Select End Time");
       return;
-    }
-    if (textEditingController.text.isEmpty) {
+    } else if (startHourDateTime!.isAfter(EndHourDateTime!)) {
+      Fluttertoast.showToast(msg: "End time must follow start time");
+      return;
+    } else if (selectedStatustValue == "Status of Task") {
+      Fluttertoast.showToast(msg: "Select Task Status");
+      return;
+    } else if (textEditingController.text.isEmpty) {
       Fluttertoast.showToast(msg: "Write Work description");
       return;
     }
 
-    print('selectedTime: $selectedTime');
-    print('selectedEndTime: $selectedEndTime');
-
-    print("hey bri ${durationFromTimeOfDay(selectedTime, selectedEndTime)}");
-    print("hey bri ${addTimeDurations(selectedTime, selectedEndTime)}");
-
+    print('TIMEDURATION:$selectedTime selectedEndTime:$selectedEndTime');
     Duration selectedDuration = addTimeDurations(selectedTime, selectedEndTime);
+    print('');
     String formattedDuration =
         '${selectedDuration.inHours}:${selectedDuration.inMinutes.remainder(60).toString().padLeft(2, '0')}';
-
-    print("Hey bri $formattedDuration");
 
     list.add({
       "date": now,
@@ -360,7 +386,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
       "duration": formattedDuration,
       "task type": selectedTaskValue,
       "project": selectedProjectValue,
-      "report": selectedReportValue,
+      "report": textReportValueController.text.trim(),
       "desc": textEditingController.text,
       "start": selectedTime,
       "end": selectedEndTime,
@@ -370,7 +396,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
 
     textEditingController.text = '';
     selectedProjectValue = "Project Name";
-    selectedReportValue = "Report Name";
+    textReportValueController.text = "Report Name";
     selectedTaskValue = "Category of Task";
     selectedSubTaskValue = "Sub Category of Task";
     selectedHourValue.value = "Start Time";
@@ -403,11 +429,11 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                 await getInitialData();
               },
               icon: Icon(Icons.replay_outlined)),
-          IconButton(
-              onPressed: () async {
-                await getdatass();
-              },
-              icon: Icon(Icons.account_balance_outlined))
+          // IconButton(
+          //     onPressed: () async {
+          //       await getdatass();
+          //     },
+          //     icon: Icon(Icons.account_balance_outlined))
         ],
         title: Text(widget.title,
             style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -525,41 +551,57 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                     SizedBox(
                       height: 16,
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: InkWell(
-                          onTap: () {
-                            showReport();
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: selectedReportValue == "Report Name"
-                                    ? Colors.grey[200]
-                                    : Colors.blueGrey[200],
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    selectedReportValue,
-                                    style: TextStyle(color: Colors.black),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black,
-                                )
-                              ],
-                            ),
-                          ),
-                        ))
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //         child: InkWell(
+                    //       onTap: () {
+                    //         showReport();
+                    //       },
+                    //       child: Container(
+                    //         alignment: Alignment.center,
+                    //         decoration: BoxDecoration(
+                    //             color: selectedReportValue == "Report Name"
+                    //                 ? Colors.grey[200]
+                    //                 : Colors.blueGrey[200],
+                    //             borderRadius: BorderRadius.circular(10)),
+                    //         child: Row(
+                    //           mainAxisSize: MainAxisSize.min,
+                    //           children: [
+                    //             Padding(
+                    //               padding: const EdgeInsets.all(16.0),
+                    //               child: Text(
+                    //                 selectedReportValue,
+                    //                 style: TextStyle(color: Colors.black),
+                    //                 textAlign: TextAlign.center,
+                    //               ),
+                    //             ),
+                    //             Icon(
+                    //               Icons.arrow_drop_down,
+                    //               color: Colors.black,
+                    //             )
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ))
+                    //   ],
+                    // ),
+
+                    Container(
+                        padding: EdgeInsets.only(left: 16, right: 16),
+                        decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(10)),
+                        child: TextField(
+                            controller: textReportValueController,
+                            minLines: 1,
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Report Name",
+                                hintStyle: TextStyle()),
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.normal))),
                     SizedBox(
                       height: 16,
                     ),
@@ -580,7 +622,8 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Padding(
+                                Container(
+                                  width: Get.width - 75,
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
                                     selectedTaskValue,
@@ -658,6 +701,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                                     child: InkWell(
                                         onTap: () {
                                           setState(() {
+                                            print('asdfdg');
                                             showHours(context);
                                           });
                                         },
@@ -787,7 +831,6 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                     //     ],
                     //   ),
                     // ),
-
                     ,
                     SizedBox(
                       height: 16,
@@ -838,6 +881,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(10)),
                         child: TextField(
+                            textCapitalization: TextCapitalization.sentences,
                             controller: textEditingController,
                             minLines: 4,
                             maxLines: 10,
@@ -996,7 +1040,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                                             now = list[index]['date'];
                                             selectedMemberValue =
                                                 list[index]['member'];
-                                            selectedReportValue =
+                                            textReportValueController.text =
                                                 list[index]['report'];
                                             selectedTaskValue =
                                                 list[index]['task type'];
@@ -1069,7 +1113,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
                                           color: Colors.blueAccent,
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      child:  Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Padding(
@@ -1231,7 +1275,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
             }
           }
           print(list);
-          selectedReportValue = list.first;
+          textReportValueController.text = list.first;
           setState(() {});
           // showSnackBar(list.toString());
         },
@@ -1272,27 +1316,27 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
           selectedSubTaskList = [];
           setState(() {});
 
-          if (selectedTaskValue == "Core task") {
-            for (String x in coreTasKIDList) {
-              selectedSubTaskList.add(SelectedListItem(name: x));
-            }
-          } else if (selectedTaskValue == "Help task") {
-            for (String x in helpTasKIDList) {
-              selectedSubTaskList.add(SelectedListItem(name: x));
-            }
-          } else if (selectedTaskValue == "R&D task") {
-            for (String x in rnDTaskIDList) {
-              selectedSubTaskList.add(SelectedListItem(name: x));
-            }
-          } else if (selectedTaskValue == "Other work-related tasks") {
-            for (String x in otherTaskIDList) {
-              selectedSubTaskList.add(SelectedListItem(name: x));
-            }
-          } else if (selectedTaskValue == "Leisure tasks") {
-            for (String x in leisureTaskIDList) {
-              selectedSubTaskList.add(SelectedListItem(name: x));
-            }
-          }
+          // if (selectedTaskValue == "Core task") {
+          //   for (String x in coreTasKIDList) {
+          //     selectedSubTaskList.add(SelectedListItem(name: x));
+          //   }
+          // } else if (selectedTaskValue == "Help task") {
+          //   for (String x in helpTasKIDList) {
+          //     selectedSubTaskList.add(SelectedListItem(name: x));
+          //   }
+          // } else if (selectedTaskValue == "R&D task") {
+          //   for (String x in rnDTaskIDList) {
+          //     selectedSubTaskList.add(SelectedListItem(name: x));
+          //   }
+          // } else if (selectedTaskValue == "Other work-related tasks") {
+          //   for (String x in otherTaskIDList) {
+          //     selectedSubTaskList.add(SelectedListItem(name: x));
+          //   }
+          // } else if (selectedTaskValue == "Leisure tasks") {
+          //   for (String x in leisureTaskIDList) {
+          //     selectedSubTaskList.add(SelectedListItem(name: x));
+          //   }
+          // }
 
           // showSnackBar(list.toString());
         },
@@ -1345,14 +1389,57 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     TimeOfDay? selectedTime = await showTimePicker(
       context: context,
       initialTime: this.selectedTime,
+      // builder: (context, Widget? child) {
+      //   return MediaQuery(
+      //     data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+      //     child: child!,
+      //   );
+      // },
     );
-    this.selectedTime = selectedTime!;
-    selectedHourValue.value = selectedTime.format(context);
 
+
+
+    selectedTime = selectedTime!;
+
+    selectedHourValue.value = selectedTime.format(context);
+    DateFormat startHourFormat = DateFormat('h:mm a');
+    startHourDateTime = startHourFormat.parse(selectedHourValue.value);
+
+    // print('selectedHourValue dateTime:${startHourDateTime}');
+    String formattedTime = DateFormat('h:mm a').format(startHourDateTime!);
+    print(
+        'selectedStartHourValue formattedTime:${formattedTime}'); // Output: 2:23 PM
     // setState(() {
     return selectedHourValue;
 
-    // });
+
+  //   // this.selectedTime = selectedTime!;
+  //   // selectedHourValue.value = selectedTime.format(context);
+  //   // print('date format:${selectedHourValue.value}');
+  // var data=   DateFormat("h:mm:a").parse(selectedHourValue.value);
+  // print('data value:$data');
+  //   // DateFormat format = DateFormat('h:mma');
+  //   // print('selectedHourValue:${selectedHourValue.value}');//3710
+  //   startHourDateTime = selectedHourValue.value;
+  //   // startHourDateTime = format.parse(selectedHourValue.value);
+  //   print('startHourDateTime:${startHourDateTime}');
+  //   // String formattedTime = DateFormat('h:mma').format(startHourDateTime!);
+  //   // print('formate:$formattedTime');
+    setState(() {});
+    // return selectedHourValue;
+  }
+
+    String convertTo12HourFormat(String time24hr) {
+    try {
+      // Parse the 24-hour time string to a DateTime object
+      DateTime time = DateFormat('HH:mm').parse(time24hr);
+      // Format the DateTime object to 12-hour format
+      String formattedTime12hr = DateFormat('h:mm a').format(time);
+      return formattedTime12hr;
+    } catch (e) {
+      // Return an empty string if the input format is invalid
+      return '';
+    }
   }
 
   showEndHours(BuildContext context) async {
@@ -1361,16 +1448,29 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     TimeOfDay? selectedTime = await showTimePicker(
       context: context,
       initialTime: selectedEndTime,
+      builder: (context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
     );
     selectedEndTime = selectedTime!;
 
     selectedEndHourValue.value = selectedTime.format(context);
+    DateFormat EndHourFormat = DateFormat('h:mm a');
+    EndHourDateTime = EndHourFormat.parse(selectedEndHourValue.value);
 
+    // print('selectedEndHourValue dateTime:${EndHourDateTime}');
+    String formattedTime = DateFormat('h:mm a').format(EndHourDateTime!);
+    print(
+        'selectedEndHourValue formattedTime:${formattedTime}'); // Output: 2:23 PM
     // setState(() {
     return selectedEndHourValue;
 
     // });
   }
+
   // DropDownState(
   //   DropDown(
   //     bottomSheetTitle: Text(
