@@ -339,11 +339,10 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
   insertToList() {
     print('check:$startHourDateTime');
 
-    if(now == 'Select Date'){
+    if (now == 'Select Date') {
       Fluttertoast.showToast(msg: "Select Date");
       return;
-    } else
-    if (selectedMemberValue == "Member Name") {
+    } else if (selectedMemberValue == "Member Name") {
       Fluttertoast.showToast(msg: "Select Member Name");
       return;
     } else if (selectedProjectValue == "Project Name") {
@@ -1397,9 +1396,7 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
       // },
     );
 
-
-
-    selectedTime = selectedTime!;
+    this.selectedTime = selectedTime!;
 
     selectedHourValue.value = selectedTime.format(context);
     DateFormat startHourFormat = DateFormat('h:mm a');
@@ -1412,24 +1409,23 @@ class _MyHomePageState extends State<HoursLogScreenBi> {
     // setState(() {
     return selectedHourValue;
 
-
-  //   // this.selectedTime = selectedTime!;
-  //   // selectedHourValue.value = selectedTime.format(context);
-  //   // print('date format:${selectedHourValue.value}');
-  // var data=   DateFormat("h:mm:a").parse(selectedHourValue.value);
-  // print('data value:$data');
-  //   // DateFormat format = DateFormat('h:mma');
-  //   // print('selectedHourValue:${selectedHourValue.value}');//3710
-  //   startHourDateTime = selectedHourValue.value;
-  //   // startHourDateTime = format.parse(selectedHourValue.value);
-  //   print('startHourDateTime:${startHourDateTime}');
-  //   // String formattedTime = DateFormat('h:mma').format(startHourDateTime!);
-  //   // print('formate:$formattedTime');
+    //   // this.selectedTime = selectedTime!;
+    //   // selectedHourValue.value = selectedTime.format(context);
+    //   // print('date format:${selectedHourValue.value}');
+    // var data=   DateFormat("h:mm:a").parse(selectedHourValue.value);
+    // print('data value:$data');
+    //   // DateFormat format = DateFormat('h:mma');
+    //   // print('selectedHourValue:${selectedHourValue.value}');//3710
+    //   startHourDateTime = selectedHourValue.value;
+    //   // startHourDateTime = format.parse(selectedHourValue.value);
+    //   print('startHourDateTime:${startHourDateTime}');
+    //   // String formattedTime = DateFormat('h:mma').format(startHourDateTime!);
+    //   // print('formate:$formattedTime');
     setState(() {});
     // return selectedHourValue;
   }
 
-    String convertTo12HourFormat(String time24hr) {
+  String convertTo12HourFormat(String time24hr) {
     try {
       // Parse the 24-hour time string to a DateTime object
       DateTime time = DateFormat('HH:mm').parse(time24hr);

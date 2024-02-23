@@ -79,12 +79,12 @@ Future<void> main() async {
     content: const Text(
         "Unable to load data from internet, please check your internet connection or try connecting to a different network.\nIf the problem persists contact developer."),
   );
-  if (worked) {
-    print("Nor worked");
-    Fluttertoast.showToast(
-        msg:
-            "Unable to load Google Sheets, please check your internet connection and try again");
-  }
+  // if (worked) {
+  //   print("Nor worked");
+  //   Fluttertoast.showToast(
+  //       msg:
+  //           "Unable to load Google Sheets, please check your internet connection and try again");
+  // }
   // check if web
   if (kIsWeb) {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.web);
